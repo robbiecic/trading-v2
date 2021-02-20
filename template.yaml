@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Trading against IG
+
+Globals:
+  Function:
+    Timeout: 6
+
+Resources:
+  MarketDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/built/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x

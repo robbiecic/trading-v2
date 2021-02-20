@@ -1,0 +1,14 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - npm install --prefix function/
+  build:
+    commands:
+      - npm run compile --prefix function/
+      - sam package --template-file template.yaml --s3-bucket market-data-v2-builds --output-template-file packaged-template.yaml
+artifacts:
+  files:
+    - packaged-template.yaml

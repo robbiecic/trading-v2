@@ -1,0 +1,35 @@
+{
+  "name": "market-data",
+  "version": "1.0.0",
+  "description": "Source market data from 3rd party providers with a typescript function",
+  "main": "built/app.js",
+  "author": "Robert Cicero",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.843.0",
+    "axios": "^0.21.1",
+    "cpx": "^1.5.0",
+    "moment": "^2.29.1",
+    "mysql": "^2.18.1",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.31"
+  },
+  "scripts": {
+    "test": "mocha -r ts-node/register src-ts/tests/**/*.ts",
+    "compile": "export NODE_ENV=prod && npm run clean && tsc && npm run post-build",
+    "post-build": "cpx package.json built/ && cpx ormconfig.js built/ && cp -R node_modules/ built/node_modules/",
+    "dev": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({\"pair\": \"AUD/USD\"})'",
+    "clean": "rm -f -r built/"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.51",
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^13.13.5",
+    "chai": "^4.3.0",
+    "eslint": "^7.19.0",
+    "mocha": "^6.2.3",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.4"
+  }
+}
