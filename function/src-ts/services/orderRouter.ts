@@ -1,5 +1,5 @@
 import { OrderEvent, ActionTypes } from "../entity/OrderEvent";
-import IG from "../utils/IG";
+import IG, { Positions } from "../utils/IG";
 
 const ig = new IG();
 
@@ -21,6 +21,10 @@ async function openPosition(order: OrderEvent) {
 
 async function closePosition(order: OrderEvent) {
   //Get open positions from IG
+  let positions: Array<Positions> | Error = await ig.getOpenPositions();
   //Close positions that match criteria
+  positions.forEach((position) => {
+    console.log(position);
+  });
   //Log into DB
 }

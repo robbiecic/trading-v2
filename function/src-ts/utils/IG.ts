@@ -48,6 +48,49 @@ interface OrderTicket {
   trailingStopIncrement?: number;
 }
 
+interface Position {
+  contractSize: number;
+  createdDate: string;
+  createdDateUTC: string;
+  dealId: string;
+  dealReference: string;
+  size: number;
+  direction: string;
+  limitLevel: number;
+  level: number;
+  currency: string;
+  controlledRisk: boolean;
+  stopLevel: null;
+  trailingStep: null;
+  trailingStopDistance: null;
+  limitedRiskPremium: null;
+}
+
+interface Market {
+  instrumentName: string;
+  expiry: string;
+  epic: epics;
+  instrumentType: string;
+  lotSize: number;
+  high: number;
+  low: number;
+  percentageChange: number;
+  netChange: number;
+  bid: number;
+  offer: number;
+  updateTime: string;
+  updateTimeUTC: string;
+  delayTime: number;
+  streamingPricesAvailable: boolean;
+  marketStatus: string;
+  scalingFactor: number;
+}
+
+export interface Positions {
+  position: Position;
+  market: Market;
+}
+
 export default class IG {
   igApiKey: String;
   igIdentifier: String;
@@ -161,18 +204,31 @@ export default class IG {
     }
   }
 
-  public async placeOrder(order: OrderEvent) {
+  public async placeOrder(order: OrderEvent): Promise<string | Error> {
     let headers = await this.hydrateHeaders();
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
-    //     response = await IG.deal(ticket);
-    //     console.log("Successfully placed an OPEN order for ", pair);
-    //     resolve(response);
-    //   } catch (error) {
-    //     reject("Error opening trade - ", error);
-    //   }
-    // });
-    // return { something: "something" };
+    try {
+      let response = await axios.post(this.igUrl + "/deal/positions/otc", orderTicket, {
+        headers: headers,
+      });
+      return response.data.dealReference;
+    } catch {
+      throw new Error("Could not place trade for - ");
+    }
+  }
+
+  public async getOpenPositions(): Promise<Array<Positions>> {
+    let headers = await this.hydrateHeaders();
+    let getPositionsResponse: AxiosResponse;
+    try {
+      getPositionsResponse = await axios.get(`${this.igUrl}/deal/positions`, {
+        headers: headers,
+      });
+      return getPositionsResponse.data.positions;
+    } catch (e) {
+      return [];
+    }
   }
 
   private returnOrderTicket(order: OrderEvent): OrderTicket {
