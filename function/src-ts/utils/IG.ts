@@ -70,6 +70,7 @@ interface Market {
   instrumentName: string;
   expiry: string;
   epic: epics;
+  pair: string;
   instrumentType: string;
   lotSize: number;
   high: number;
@@ -200,6 +201,20 @@ export default class IG {
       }
       case "USD/JPY": {
         return epics.USDJPY;
+      }
+    }
+  }
+
+  public getPairFromEpic(epic: epics): string {
+    switch (epic) {
+      case epics.AUDUSD: {
+        return "AUD/USD";
+      }
+      case epics.EURUSD: {
+        return "EUR/USD";
+      }
+      case epics.USDJPY: {
+        return "USD/JPY";
       }
     }
   }

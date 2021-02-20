@@ -24,7 +24,11 @@ async function closePosition(order: OrderEvent) {
   let positions: Array<Positions> | Error = await ig.getOpenPositions();
   //Close positions that match criteria
   positions.forEach((position) => {
-    console.log(position);
+    //The position matches the pair and direction
+    let pair = ig.getPairFromEpic(position.market.epic);
+    if (pair == order.pair) {
+      //Pair matches
+      //Log into DB
+    }
   });
-  //Log into DB
 }
