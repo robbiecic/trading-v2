@@ -1,4 +1,4 @@
-import { OrderEvent, ActionTypes } from "../entity/OrderEvent";
+import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
 import IG, { Positions } from "../utils/IG";
 
 const ig = new IG();
@@ -22,12 +22,13 @@ async function openPosition(order: OrderEvent) {
 async function closePosition(order: OrderEvent) {
   //Get open positions from IG
   let positions: Array<Positions> | Error = await ig.getOpenPositions();
-  //Close positions that match criteria
-  positions.forEach((position) => {
-    //The position matches the pair and direction
+  //Loop through all open positions
+  positions.forEach(async (position: Positions) => {
     let pair = ig.getPairFromEpic(position.market.epic);
-    if (pair == order.pair) {
-      //Pair matches
+    let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
+    //Match on pair & position to close it out
+    if (pair == order.pair && order.direction == positionDirection) {
+      await ig.closePosition(position, order);
       //Log into DB
     }
   });

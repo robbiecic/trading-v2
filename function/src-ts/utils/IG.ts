@@ -246,6 +246,23 @@ export default class IG {
     }
   }
 
+  public async closePosition(position: Positions, order: OrderEvent) {
+    let headers = await this.hydrateHeaders();
+    headers.Version = "1";
+    let body = {
+      dealId: position.position.dealId,
+      direction: order.direction == DirectionTypes.LONG ? "BUY" : "SELL",
+      expiry: "-",
+      size: position.position.size,
+      orderType: "MARKET",
+    };
+    let dealReference = await axios.delete(`{this.igURL}/positions/otc`, { data: body, headers: headers });
+  }
+
+  private async getDealDetails(dealReference: string) {
+    //to-do
+  }
+
   private returnOrderTicket(order: OrderEvent): OrderTicket {
     return {
       currencyCode: "USD",
