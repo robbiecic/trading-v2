@@ -108,7 +108,7 @@ export default class IG {
     this.headers = this.setHeaders();
   }
 
-  protected async connect(): Promise<tokens> {
+  public async connect(): Promise<tokens> {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     let loginResponse: AxiosResponse;
     try {

@@ -12,6 +12,6 @@
     "emitDecoratorMetadata": true,
     "types": ["node", "jest"]
   },
-  "include": ["src-ts/**/*"],
+  "include": ["src-ts/**/*", "jest.config.js"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
