@@ -15,7 +15,7 @@
     "typeorm": "^0.2.31"
   },
   "scripts": {
-    "test": "mocha -r ts-node/register src-ts/tests/**/*.ts",
+    "test": "jest",
     "compile": "export NODE_ENV=prod && npm run clean && tsc && npm run post-build",
     "post-build": "cpx package.json built/ && cpx ormconfig.js built/ && cp -R node_modules/ built/node_modules/",
     "dev": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({\"pair\": \"AUD/USD\"})'",
@@ -23,11 +23,11 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.51",
-    "@types/chai": "^4.2.15",
-    "@types/mocha": "^8.2.0",
+    "@types/jest": "^26.0.20",
     "@types/node": "^13.13.5",
     "chai": "^4.3.0",
     "eslint": "^7.19.0",
+    "jest": "^26.6.3",
     "mocha": "^6.2.3",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.4"
