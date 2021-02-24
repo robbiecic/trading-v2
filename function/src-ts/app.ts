@@ -20,9 +20,10 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
     //Do Something
     connection = await createConnection();
     //We might have multiple orders to process from the queue
-    event.Records.forEach(async (queueOrder: OrderEvent) => {
-      console.log(queueOrder);
-      await doOrder(queueOrder);
+    event.Records.forEach(async (queueOrder: string) => {
+      let orderObject: OrderEvent = JSON.parse(queueOrder);
+      console.log(orderObject);
+      await doOrder(orderObject);
     });
     await connection.close();
     return {

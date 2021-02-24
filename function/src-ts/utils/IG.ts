@@ -219,7 +219,7 @@ export default class IG {
     }
   }
 
-  public async placeOrder(order: OrderEvent): Promise<string | Error> {
+  public async placeOrder(order: OrderEvent): Promise<string> {
     let headers = await this.hydrateHeaders();
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
@@ -228,8 +228,8 @@ export default class IG {
         headers: headers,
       });
       return response.data.dealReference;
-    } catch {
-      throw new Error("Could not place trade for - ");
+    } catch (e) {
+      throw new Error(`Could not place trade: ${e}`);
     }
   }
 
@@ -242,12 +242,13 @@ export default class IG {
       });
       return getPositionsResponse.data.positions;
     } catch (e) {
-      return [];
+      throw new Error(`Could not get open positions: ${e}`);
     }
   }
 
-  public async closePosition(position: Positions, order: OrderEvent) {
+  public async closePosition(position: Positions, order: OrderEvent): Promise<any> {
     let headers = await this.hydrateHeaders();
+    let getCloseResponse: AxiosResponse;
     headers.Version = "1";
     let body = {
       dealId: position.position.dealId,
@@ -256,10 +257,15 @@ export default class IG {
       size: position.position.size,
       orderType: "MARKET",
     };
-    let dealReference = await axios.delete(`{this.igURL}/positions/otc`, { data: body, headers: headers });
+    try {
+      getCloseResponse = await axios.delete(`{this.igURL}/positions/otc`, { data: body, headers: headers });
+      return getCloseResponse.data;
+    } catch (e) {
+      throw new Error(`Could not close position: ${e}`);
+    }
   }
 
-  private async getDealDetails(dealReference: string) {
+  public async getDealDetails(dealReference: string) {
     //to-do
   }
 

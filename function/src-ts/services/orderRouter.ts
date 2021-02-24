@@ -10,12 +10,16 @@ export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
   } else if (order.actionType == ActionTypes.Close) {
     await closePosition(order);
     return true;
+  } else {
+    throw new Error(`actionType not supported with: ${order.actionType}`);
   }
 }
 
 async function openPosition(order: OrderEvent) {
   //Place order in IG
-  await ig.placeOrder(order);
+  const dealReference = await ig.placeOrder(order);
+  //Get deal reference details
+  const dealDetails = await ig.getDealDetails(dealReference);
   //Log into DB
 }
 
