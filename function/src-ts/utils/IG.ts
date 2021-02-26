@@ -157,7 +157,6 @@ export default class IG {
 
   public async getPrices(fxPair: string, resolution: resolutions): Promise<MarketDataInterface> {
     let headers = await this.hydrateHeaders();
-    // let headers = this.headers;
     headers.Version = "3";
     let epic = this.getIgEpicFromPair(fxPair);
     let url = `${this.igUrl}/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
