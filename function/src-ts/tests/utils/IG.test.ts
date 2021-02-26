@@ -1,33 +1,71 @@
-import IG from "../../utils/IG";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { mocked } from "ts-jest/utils";
+import IG, { resolutions } from "../../utils/IG";
+import { AxiosResponse } from "axios";
+import { Factory } from "rosie";
+import { internet, random } from "faker";
 
-jest.mock("axios");
-const mockedAxios = mocked(axios, true);
-
-const ig = new IG();
-
-describe("IG()", () => {
-  afterEach(jest.clearAllMocks);
-
-  it("Mock out IG Connect call", async () => {
-    let mockResponse: AxiosResponse;
-    let expectedResponseBody = {
-      "X-SECURITY-TOKEN": "1234",
-      CST: "456",
-    };
-    mockResponse.data = expectedResponseBody;
-    mockedAxios.mockResolvedValueOnce(mockResponse);
-    const response = await ig.connect();
-    expect(response).toEqual(expectedResponseBody);
-  });
+export const mockResponse = Factory.define<AxiosResponse>("AxiosResponseFactory").attrs({
+  status: 200,
+  statusText: "Success",
+  headers: () => ({
+    "Content-Type": "application/json",
+  }),
+  config: () => ({
+    url: internet.url(),
+    method: random.arrayElement(["GET", "POST", "DELETE"]),
+  }),
+  data: () => ({
+    num: random.number(),
+    text: random.words(),
+    boolValue: true,
+  }),
 });
 
-// it('should return app that has been just created', async () => {
-//   const payload = mockApigeeApp.build();
+const successHeaders = {
+  "x-security-token": "1234",
+  cst: "456",
+};
 
-//   // apigee returns data is returned after created
-//   mockedAxios.mockResolvedValueOnce(mockResponse.build({ data: payload }));
-//   const result = await createCompanyApp(payload.companyName, payload);
-//   expect(result).toEqual(payload);
+jest.mock("axios");
+
+const mockedAxios = mocked(axios, true);
+const ig = new IG();
+
+// mockedAxios.get.mockResolvedValueOnce((url) => {
+//   switch(url) {
+//     case `${ig.igUrl}/prices/CS.D.AUDUSD.CFD.IP?resolution=MINUTE_10&max=1`:
+//       return Promise.resolve({ data: { app: appData })
+//   }
 // });
+
+describe("getApps()", () => {
+  afterEach(jest.clearAllMocks);
+
+  it("should return list of apps", async () => {
+    const priceData = [
+      {
+        snapshotTime: "",
+        snapshotTimeUTC: "",
+        openPrice: {
+          ask: 1,
+        },
+        closePrice: {
+          ask: 2,
+        },
+        highPrice: {
+          ask: 3,
+        },
+        lowPrice: {
+          ask: 3,
+        },
+        lastTradedVolume: 100,
+      },
+    ];
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` }, headers: successHeaders }));
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: { prices: priceData } }));
+
+    const result = await ig.getPrices("AUD/USD", resolutions.MINUTE_10);
+    expect(result).toEqual(priceData);
+  });
+});

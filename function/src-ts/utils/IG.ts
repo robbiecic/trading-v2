@@ -120,6 +120,7 @@ export default class IG {
         CST: loginResponse.headers["cst"],
       };
     } catch (error) {
+      console.log(error);
       throw new Error(`Could not connect to IG with error - ${error.response.status} ${JSON.stringify(error.response.data)}`);
     }
   }
@@ -131,12 +132,13 @@ export default class IG {
     return this.headers;
   }
 
-  private async isConnected(): Promise<tokens> {
+  public async isConnected(): Promise<tokens> {
     let sessionResponse: AxiosResponse;
     try {
       sessionResponse = await axios.get(`${this.igUrl}/session`, {
         headers: this.headers,
       });
+      console.log(sessionResponse);
       return {
         "X-SECURITY-TOKEN": sessionResponse.headers["x-security-token"],
         CST: sessionResponse.headers["cst"],
@@ -155,12 +157,14 @@ export default class IG {
 
   public async getPrices(fxPair: string, resolution: resolutions): Promise<MarketDataInterface> {
     let headers = await this.hydrateHeaders();
+    // let headers = this.headers;
     headers.Version = "3";
     let epic = this.getIgEpicFromPair(fxPair);
     let url = `${this.igUrl}/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
     let getDataResponse: AxiosResponse;
     try {
       getDataResponse = await axios.get(url, { headers: headers });
+      console.log(getDataResponse);
       let data = getDataResponse.data.prices[0];
       let priceData: MarketDataInterface = {
         pair: fxPair,
