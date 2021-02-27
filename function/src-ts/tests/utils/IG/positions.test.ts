@@ -1,24 +1,24 @@
 import axios from "axios";
 import { mocked } from "ts-jest/utils";
-import IG, { resolutions } from "../../../utils/IG";
+import IG from "../../../utils/IG";
 import { mockResponse } from "./factories";
-import { priceData } from "./api-responses/prices";
-import { expectedPrices } from "./expected-results/prices";
+import { positions } from "./api-responses/positions";
+import { expectedPositions } from "./expected-results/positions";
 
 jest.mock("axios");
 const mockedAxios = mocked(axios, true);
 const ig = new IG();
 
-describe("IG Price Data Test Suite", () => {
+describe("IG positions data test suite", () => {
   afterEach(jest.clearAllMocks);
 
-  it("Should get the correct price data back", async () => {
+  it("Should get the correct position data back", async () => {
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: priceData }));
-    const actualResponse = await ig.getPrices("AUD/USD", resolutions.MINUTE_10);
-    expect(actualResponse).toEqual(expectedPrices);
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: positions }));
+    const actualResponse = await ig.getOpenPositions();
+    expect(actualResponse).toEqual(expectedPositions);
   });
 
   it("Should throw an error for 400", async () => {
@@ -26,8 +26,6 @@ describe("IG Price Data Test Suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.getPrices("AUD/USD", resolutions.MINUTE_10)).rejects.toThrow(
-      Error(`Could not fetch prices data for CS.D.AUDUSD.CFD.IP with error - Bad Request`)
-    );
+    await expect(ig.getOpenPositions()).rejects.toThrow(Error(`Could not get open positions: Bad Request`));
   });
 });

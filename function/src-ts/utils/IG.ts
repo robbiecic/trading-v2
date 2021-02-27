@@ -243,7 +243,7 @@ export default class IG {
       });
       return getPositionsResponse.data.positions;
     } catch (e) {
-      throw new Error(`Could not get open positions: ${e}`);
+      throw new Error(`Could not get open positions: ${e.statusText}`);
     }
   }
 
