@@ -6,22 +6,22 @@ export const priceData = {
       openPrice: {
         bid: 1.20879,
         ask: 1.20888,
-        lastTraded: null,
+        lastTraded: null as Number,
       },
       closePrice: {
         bid: 1.20778,
         ask: 1.20787,
-        lastTraded: null,
+        lastTraded: null as Number,
       },
       highPrice: {
         bid: 1.20879,
         ask: 1.20888,
-        lastTraded: null,
+        lastTraded: null as Number,
       },
       lowPrice: {
         bid: 1.20761,
         ask: 1.2077,
-        lastTraded: null,
+        lastTraded: null as Number,
       },
       lastTradedVolume: 1826,
     },

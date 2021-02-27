@@ -138,7 +138,6 @@ export default class IG {
       sessionResponse = await axios.get(`${this.igUrl}/session`, {
         headers: this.headers,
       });
-      console.log(sessionResponse);
       return {
         "X-SECURITY-TOKEN": sessionResponse.headers["x-security-token"],
         CST: sessionResponse.headers["cst"],
@@ -163,12 +162,11 @@ export default class IG {
     let getDataResponse: AxiosResponse;
     try {
       getDataResponse = await axios.get(url, { headers: headers });
-      console.log(getDataResponse);
       let data = getDataResponse.data.prices[0];
       let priceData: MarketDataInterface = {
         pair: fxPair,
-        dateTime: data.snapshotTime,
-        snapshotTimeUTC: data.snapshotTimeUTC,
+        dateTime: new Date(data.snapshotTime),
+        snapshotTimeUTC: new Date(data.snapshotTimeUTC),
         openPrice: data.openPrice.ask,
         closePrice: data.closePrice.ask,
         highPrice: data.highPrice.ask,
@@ -179,7 +177,7 @@ export default class IG {
       console.log(`Prices for ${epic} are ${JSON.stringify(priceData)}`);
       return priceData;
     } catch (e) {
-      throw new Error(`Could not fetch prices data for ${epic} with error - ${e}`);
+      throw new Error(`Could not fetch prices data for ${epic} with error - ${e.statusText}`);
     }
   }
 

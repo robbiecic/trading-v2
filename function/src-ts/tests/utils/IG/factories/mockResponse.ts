@@ -1,6 +1,5 @@
 import { AxiosResponse } from "axios";
 import { Factory } from "rosie";
-import { internet, random } from "faker";
 
 export const mockResponse = Factory.define<AxiosResponse>("AxiosResponseFactory").attrs({
   status: 200,
@@ -11,12 +10,10 @@ export const mockResponse = Factory.define<AxiosResponse>("AxiosResponseFactory"
     cst: "73c505d2d63f7d6af65921e587e29a8d7ea793d5c5a578ef305cf043e3c2e7CU01112",
   }),
   config: () => ({
-    url: internet.url(),
-    method: random.arrayElement(["GET", "POST", "DELETE"]),
+    url: "",
+    method: "GET",
   }),
   data: () => ({
-    num: random.number(),
-    text: random.words(),
     boolValue: true,
   }),
 });
