@@ -20,9 +20,9 @@ interface tokens {
 }
 
 export enum epics {
-  AUDUSD = "CS.D.AUDUSD.CFD.IP",
-  EURUSD = "CS.D.EURUSD.CFD.IP",
-  USDJPY = "CS.D.USDJPY.CFD.IP",
+  AUDUSD = "CS.D.AUDUSD.MINI.IP",
+  EURUSD = "CS.D.EURUSD.MINI.IP",
+  USDJPY = "CS.D.USDJPY.MINI.IP",
 }
 
 export enum resolutions {
@@ -236,11 +236,37 @@ export default class IG {
   public async getOpenPositions(): Promise<Array<Positions>> {
     let headers = await this.hydrateHeaders();
     let getPositionsResponse: AxiosResponse;
+    let returnPositions: Array<Positions> = [];
     try {
       getPositionsResponse = await axios.get(`${this.igUrl}/deal/positions`, {
         headers: headers,
       });
-      return getPositionsResponse.data.positions;
+      getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
+        let stringEpic: string = position.market.epic;
+        returnPositions.push({
+          position: position.position,
+          market: {
+            instrumentName: position.market.instrumentName,
+            expiry: position.market.expiry,
+            epic: stringEpic as epics,
+            instrumentType: position.market.instrumentType,
+            lotSize: position.market.lotSize,
+            high: position.market.high,
+            low: position.market.low,
+            percentageChange: position.market.percentageChange,
+            netChange: position.market.netChange,
+            bid: position.market.bid,
+            offer: position.market.offer,
+            updateTime: position.market.updateTime,
+            updateTimeUTC: position.market.updateTimeUTC,
+            delayTime: position.market.delayTime,
+            streamingPricesAvailable: position.market.streamingPricesAvailable,
+            marketStatus: position.market.marketStatus,
+            scalingFactor: position.market.scalingFactor,
+          },
+        });
+      });
+      return returnPositions;
     } catch (e) {
       throw new Error(`Could not get open positions: ${e.statusText}`);
     }
@@ -261,7 +287,7 @@ export default class IG {
       getCloseResponse = await axios.delete(`{this.igURL}/positions/otc`, { data: body, headers: headers });
       return getCloseResponse.data;
     } catch (e) {
-      throw new Error(`Could not close position: ${e}`);
+      throw new Error(`Could not close position: ${e.statusText}`);
     }
   }
 

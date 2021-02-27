@@ -20,14 +20,14 @@ const orderEvent: OrderEvent = {
 
 describe("IG positions data test suite", () => {
   afterEach(jest.clearAllMocks);
-
-  it("Should get the correct position data back", async () => {
+  let expectedResponse = { dealReference: "123456" };
+  it("Should close position successfully", async () => {
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: positions }));
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
     const actualResponse = await ig.closePosition(expectedPositions[0], orderEvent);
-    expect(actualResponse).toEqual(expectedPositions);
+    expect(actualResponse).toEqual(expectedResponse);
   });
 
   it("Should throw an error for 400", async () => {
@@ -35,6 +35,6 @@ describe("IG positions data test suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.getOpenPositions()).rejects.toThrow(Error(`Could not get open positions: Bad Request`));
+    await expect(ig.closePosition(expectedPositions[0], orderEvent)).rejects.toThrow(Error(`Could not get open positions: Bad Request`));
   });
 });

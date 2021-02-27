@@ -27,7 +27,7 @@ describe("IG price data test suite", () => {
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
     await expect(ig.getPrices("AUD/USD", resolutions.MINUTE_10)).rejects.toThrow(
-      Error(`Could not fetch prices data for CS.D.AUDUSD.CFD.IP with error - Bad Request`)
+      Error(`Could not fetch prices data for CS.D.AUDUSD.MINI.IP with error - Bad Request`)
     );
   });
 });

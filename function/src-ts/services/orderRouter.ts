@@ -29,7 +29,6 @@ async function closePosition(order: OrderEvent) {
   //Loop through all open positions
   positions.forEach(async (position: Positions) => {
     let pair = ig.getPairFromEpic(position.market.epic);
-    position.market.pair = pair;
     let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
     //Match on pair & position to close it out
     if (pair == order.pair && order.direction == positionDirection) {
