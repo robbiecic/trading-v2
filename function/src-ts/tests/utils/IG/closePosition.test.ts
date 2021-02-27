@@ -25,7 +25,7 @@ describe("IG positions data test suite", () => {
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
+    mockedAxios.delete.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
     const actualResponse = await ig.closePosition(expectedPositions[0], orderEvent);
     expect(actualResponse).toEqual(expectedResponse);
   });
@@ -34,7 +34,7 @@ describe("IG positions data test suite", () => {
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
-    mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.closePosition(expectedPositions[0], orderEvent)).rejects.toThrow(Error(`Could not get open positions: Bad Request`));
+    mockedAxios.delete.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
+    await expect(ig.closePosition(expectedPositions[0], orderEvent)).rejects.toThrow(Error(`Could not close position: Bad Request`));
   });
 });
