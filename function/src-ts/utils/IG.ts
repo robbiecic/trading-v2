@@ -291,8 +291,14 @@ export default class IG {
     }
   }
 
-  public async getDealDetails(dealReference: string) {
-    //to-do
+  public async getDealDetails(dealReference: string): Promise<any> {
+    let headers = await this.hydrateHeaders();
+    try {
+      const getCloseResponse = await axios.get(`${this.igUrl}confirms/${dealReference}`, { headers: headers });
+      return getCloseResponse.data;
+    } catch (e) {
+      throw new Error(`Could not get deal reference details: ${e.statusText}`);
+    }
   }
 
   public returnOrderTicket(order: OrderEvent): OrderTicket {
