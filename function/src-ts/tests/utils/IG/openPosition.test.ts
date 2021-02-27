@@ -17,23 +17,23 @@ const orderEvent: OrderEvent = {
   priceTarget: 0.761,
 };
 
-describe("IG close positions test suite", () => {
+describe("IG open positions test suite", () => {
   afterEach(jest.clearAllMocks);
   let expectedResponse = { dealReference: "123456" };
-  it("Should close position successfully", async () => {
+  it("Should open position successfully", async () => {
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
-    mockedAxios.delete.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
-    const actualResponse = await ig.closePosition(expectedPositions[0], orderEvent);
+    mockedAxios.post.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
+    const actualResponse = await ig.placeOrder(orderEvent);
     expect(actualResponse).toEqual("123456");
   });
 
-  it("Should throw an error for 400", async () => {
+  it("Should throw an error for 4xx", async () => {
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
-    mockedAxios.delete.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.closePosition(expectedPositions[0], orderEvent)).rejects.toThrow(Error(`Could not close position: Bad Request`));
+    mockedAxios.post.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
+    await expect(ig.placeOrder(orderEvent)).rejects.toThrow(Error(`Could not place trade: Bad Request`));
   });
 });

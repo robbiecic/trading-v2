@@ -229,7 +229,7 @@ export default class IG {
       });
       return response.data.dealReference;
     } catch (e) {
-      throw new Error(`Could not place trade: ${e}`);
+      throw new Error(`Could not place trade: ${e.statusText}`);
     }
   }
 
@@ -284,8 +284,8 @@ export default class IG {
       orderType: "MARKET",
     };
     try {
-      getCloseResponse = await axios.delete(`{this.igURL}/positions/otc`, { data: body, headers: headers });
-      return getCloseResponse.data;
+      getCloseResponse = await axios.delete(`${this.igUrl}/positions/otc`, { data: body, headers: headers });
+      return getCloseResponse.data.dealReference;
     } catch (e) {
       throw new Error(`Could not close position: ${e.statusText}`);
     }
