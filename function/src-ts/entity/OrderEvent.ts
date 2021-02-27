@@ -12,6 +12,6 @@ export interface OrderEvent {
   actionType: ActionTypes;
   direction: DirectionTypes;
   pair: string;
-  orderDateUTC: string;
+  orderDateUTC: Date;
   priceTarget: number;
 }

@@ -9,7 +9,7 @@ jest.mock("axios");
 const mockedAxios = mocked(axios, true);
 const ig = new IG();
 
-describe("IG Price Data Test Suite", () => {
+describe("IG price data test suite", () => {
   afterEach(jest.clearAllMocks);
 
   it("Should get the correct price data back", async () => {

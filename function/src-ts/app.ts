@@ -1,14 +1,14 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 import "reflect-metadata";
 import { createConnection, Connection } from "typeorm";
-import { OrderEvent } from "./entity/OrderEvent";
+import { OrderEvent, ActionTypes, DirectionTypes } from "./entity/OrderEvent";
 import { doOrder } from "./services/orderRouter";
 
 /* event
  * {
  *  Records: [
  *  {
- *   body: string
+ *   body: "{\"actionType\": \"Open\",\"direction\": \"LONG\",\"pair\": \"AUD/USD\", \"orderDateUTC\":\"\", \"priceTarget\": \"\"}",
  *  }
  * ]
  *
@@ -21,7 +21,15 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
     connection = await createConnection();
     //We might have multiple orders to process from the queue
     event.Records.forEach(async (queueOrder: string) => {
-      let orderObject: OrderEvent = JSON.parse(queueOrder);
+      //Map queue to orderEvent object
+      let queueOrderObject = JSON.parse(queueOrder);
+      let orderObject: OrderEvent = {
+        actionType: queueOrderObject.actionType as ActionTypes,
+        direction: queueOrderObject.direction as DirectionTypes,
+        pair: queueOrderObject.pair,
+        orderDateUTC: new Date(queueOrderObject.orderDateUTC),
+        priceTarget: queueOrderObject.priceTarget,
+      };
       console.log(orderObject);
       await doOrder(orderObject);
     });

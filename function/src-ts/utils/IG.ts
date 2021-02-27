@@ -60,17 +60,16 @@ interface Position {
   level: number;
   currency: string;
   controlledRisk: boolean;
-  stopLevel: null;
-  trailingStep: null;
-  trailingStopDistance: null;
-  limitedRiskPremium: null;
+  stopLevel: number;
+  trailingStep: number;
+  trailingStopDistance: number;
+  limitedRiskPremium: number;
 }
 
 interface Market {
   instrumentName: string;
   expiry: string;
   epic: epics;
-  pair: string;
   instrumentType: string;
   lotSize: number;
   high: number;
