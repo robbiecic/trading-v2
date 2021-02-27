@@ -29,7 +29,7 @@ export enum resolutions {
   MINUTE_10 = "MINUTE_10",
 }
 
-interface OrderTicket {
+export interface OrderTicket {
   currencyCode: string;
   direction: string;
   epic: epics;
@@ -295,7 +295,7 @@ export default class IG {
     //to-do
   }
 
-  private returnOrderTicket(order: OrderEvent): OrderTicket {
+  public returnOrderTicket(order: OrderEvent): OrderTicket {
     return {
       currencyCode: "USD",
       direction: order.direction == DirectionTypes.LONG ? "BUY" : "SELL",

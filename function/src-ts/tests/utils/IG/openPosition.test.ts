@@ -2,7 +2,6 @@ import axios from "axios";
 import { mocked } from "ts-jest/utils";
 import IG from "../../../utils/IG";
 import { mockResponse } from "./factories";
-import { expectedPositions } from "./expected-results/positions";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
 
 jest.mock("axios");
@@ -19,8 +18,9 @@ const orderEvent: OrderEvent = {
 
 describe("IG open positions test suite", () => {
   afterEach(jest.clearAllMocks);
-  let expectedResponse = { dealReference: "123456" };
+
   it("Should open position successfully", async () => {
+    let expectedResponse = { dealReference: "123456" };
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call

@@ -19,8 +19,9 @@ const orderEvent: OrderEvent = {
 
 describe("IG close positions test suite", () => {
   afterEach(jest.clearAllMocks);
-  let expectedResponse = { dealReference: "123456" };
+
   it("Should close position successfully", async () => {
+    let expectedResponse = { dealReference: "123456" };
     //Session
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
