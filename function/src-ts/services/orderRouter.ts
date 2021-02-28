@@ -1,5 +1,6 @@
 import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
-import IG, { Positions } from "../utils/IG";
+import { Deal } from "../entity/Deal";
+import IG, { Positions, Confirms } from "../utils/IG";
 
 const ig = new IG();
 
@@ -21,6 +22,7 @@ async function openPosition(order: OrderEvent) {
   //Get deal reference details
   const dealDetails = await ig.getDealDetails(dealReference);
   //Mapy details to Deal Type, IG will return it's own dataset
+  const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
   //Log into DB
 }
 
@@ -37,4 +39,22 @@ async function closePosition(order: OrderEvent) {
       //Log into DB
     }
   });
+}
+
+function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): Deal {
+  let returnDeal: Deal = {
+    eventDate: confirmObject.date,
+    eventAction: order.actionType.toString(),
+    dealID: confirmObject.dealId,
+    dealReference: confirmObject.dealReference,
+    epic: confirmObject.epic.toString(),
+    level: confirmObject.level,
+    size: confirmObject.size,
+    direction: confirmObject.direction,
+    profit: confirmObject.profit ?? null,
+    targetPrice: order.priceTarget,
+    originalOrderDateUTC: order.orderDateUTC,
+    pair: order.pair,
+  };
+  return returnDeal;
 }
