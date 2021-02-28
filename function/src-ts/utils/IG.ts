@@ -350,7 +350,7 @@ export default class IG {
   public returnOrderTicket(order: OrderEvent): OrderTicket {
     return {
       currencyCode: "USD",
-      direction: order.direction == DirectionTypes.LONG ? "BUY" : "SELL",
+      direction: order.direction === DirectionTypes.LONG ? "BUY" : "SELL",
       epic: this.getIgEpicFromPair(order.pair),
       expiry: "-",
       size: config.ig.unitsPerTrade || 1,

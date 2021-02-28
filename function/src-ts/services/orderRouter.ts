@@ -5,10 +5,10 @@ import IG, { Positions, Confirms } from "../utils/IG";
 const ig = new IG();
 
 export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
-  if (order.actionType == ActionTypes.Open) {
+  if (order.actionType === ActionTypes.Open) {
     await openPosition(order);
     return true;
-  } else if (order.actionType == ActionTypes.Close) {
+  } else if (order.actionType === ActionTypes.Close) {
     await closePosition(order);
     return true;
   } else {
