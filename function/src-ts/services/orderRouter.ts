@@ -20,6 +20,7 @@ async function openPosition(order: OrderEvent) {
   const dealReference = await ig.placeOrder(order);
   //Get deal reference details
   const dealDetails = await ig.getDealDetails(dealReference);
+  //Mapy details to Deal Type, IG will return it's own dataset
   //Log into DB
 }
 

@@ -48,7 +48,7 @@ export interface OrderTicket {
   trailingStopIncrement?: number;
 }
 
-interface Position {
+export interface Position {
   contractSize: number;
   createdDate: string;
   createdDateUTC: string;
@@ -84,6 +84,29 @@ interface Market {
   streamingPricesAvailable: boolean;
   marketStatus: string;
   scalingFactor: number;
+}
+
+export interface Confirms {
+  date: Date;
+  status: string;
+  reason: string;
+  dealStatus: string;
+  epic: epics;
+  expiry: string;
+  dealReference: string;
+  dealId: string;
+  affectedDeals: Array<any>;
+  level: number;
+  size: number;
+  direction: string;
+  stopLevel: number;
+  limitLevel: number;
+  stopDistance: number;
+  limitDistance: number;
+  guaranteedStop: boolean;
+  trailingStop: boolean;
+  profit: number;
+  profitCurrency: string;
 }
 
 export interface Positions {
@@ -291,11 +314,34 @@ export default class IG {
     }
   }
 
-  public async getDealDetails(dealReference: string): Promise<any> {
+  public async getDealDetails(dealReference: string): Promise<Confirms> {
     let headers = await this.hydrateHeaders();
+    let returnData: Confirms;
     try {
       const getCloseResponse = await axios.get(`${this.igUrl}confirms/${dealReference}`, { headers: headers });
-      return getCloseResponse.data;
+      returnData = {
+        date: new Date(getCloseResponse.data.date),
+        status: getCloseResponse.data.status,
+        reason: getCloseResponse.data.reason,
+        dealStatus: getCloseResponse.data.dealStatus,
+        epic: getCloseResponse.data.epic as epics,
+        expiry: getCloseResponse.data.expiry,
+        dealReference: getCloseResponse.data.dealReference,
+        dealId: getCloseResponse.data.dealId,
+        affectedDeals: getCloseResponse.data.affectedDeals,
+        level: getCloseResponse.data.level,
+        size: getCloseResponse.data.size,
+        direction: getCloseResponse.data.direction,
+        stopLevel: getCloseResponse.data.stopLevel,
+        limitLevel: getCloseResponse.data.limitLevel,
+        stopDistance: getCloseResponse.data.stopDistance,
+        limitDistance: getCloseResponse.data.limitDistance,
+        guaranteedStop: getCloseResponse.data.guaranteedStop,
+        trailingStop: getCloseResponse.data.trailingStop,
+        profit: getCloseResponse.data.profit,
+        profitCurrency: getCloseResponse.data.profitCurrency,
+      };
+      return returnData;
     } catch (e) {
       throw new Error(`Could not get deal reference details: ${e.statusText}`);
     }

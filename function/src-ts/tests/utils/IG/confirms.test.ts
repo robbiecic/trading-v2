@@ -3,6 +3,7 @@ import { mocked } from "ts-jest/utils";
 import IG from "../../../utils/IG";
 import { mockResponse } from "./factories";
 import { confirms } from "./api-responses/confirms";
+import { expectedConfirms } from "./expected-results/confirms";
 
 jest.mock("axios");
 const mockedAxios = mocked(axios, true);
@@ -19,7 +20,7 @@ describe("IG confirms test suite", () => {
     //Prices call
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: confirms }));
     const actualResponse = await ig.getDealDetails(dealReference);
-    expect(actualResponse).toEqual(confirms);
+    expect(actualResponse).toEqual(expectedConfirms);
   });
 
   it("Should throw an error for 4xx", async () => {
