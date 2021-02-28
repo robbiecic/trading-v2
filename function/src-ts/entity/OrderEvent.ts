@@ -1,11 +1,11 @@
 export enum ActionTypes {
-  "Open",
-  "Close",
+  Open = "Open",
+  Close = "Close",
 }
 
 export enum DirectionTypes {
-  "LONG",
-  "SHORT",
+  LONG = "LONG",
+  SHORT = "SHORT",
 }
 
 export interface OrderEvent {

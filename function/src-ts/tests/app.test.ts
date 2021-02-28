@@ -21,5 +21,6 @@ describe("Test suite for app.ts", () => {
   it("Should transform incoming event body to type OrderEvent", async () => {
     const actualResponse = mapEventObjectToOrderEvent(inboundMessage);
     expect(actualResponse).toEqual(orderEvent);
+    expect(actualResponse.actionType).toEqual(ActionTypes.Open);
   });
 });
