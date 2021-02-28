@@ -1,6 +1,7 @@
 import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
-import { Deal } from "../entity/Deal";
+import { Deal, tradingHistory } from "../entity/Deal";
 import IG, { Positions, Confirms } from "../utils/IG";
+import { getConnection } from "typeorm";
 
 const ig = new IG();
 
@@ -21,22 +22,29 @@ async function openPosition(order: OrderEvent) {
   const dealReference = await ig.placeOrder(order);
   //Get deal reference details
   const dealDetails = await ig.getDealDetails(dealReference);
-  //Mapy details to Deal Type, IG will return it's own dataset
+  //Map details to Deal Type, IG will return it's own dataset
   const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
   //Log into DB
+  await saveData(finalOrderDetails);
 }
 
 async function closePosition(order: OrderEvent) {
   //Get open positions from IG
-  let positions: Array<Positions> | Error = await ig.getOpenPositions();
+  let positions: Array<Positions> = await ig.getOpenPositions();
   //Loop through all open positions
   positions.forEach(async (position: Positions) => {
     let pair = ig.getPairFromEpic(position.market.epic);
     let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
     //Match on pair & position to close it out
     if (pair == order.pair && order.direction == positionDirection) {
-      await ig.closePosition(position, order);
+      //Close position
+      const dealReference = await ig.closePosition(position, order);
+      //Get deal reference details
+      const dealDetails = await ig.getDealDetails(dealReference);
+      //Map details to Deal Type, IG will return it's own dataset
+      const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
       //Log into DB
+      await saveData(finalOrderDetails);
     }
   });
 }
@@ -57,4 +65,16 @@ export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): De
     pair: order.pair,
   };
   return returnDeal;
+}
+
+async function saveData(data: Deal): Promise<boolean | Error> {
+  try {
+    const connection = await getConnection();
+    const repository = connection.getRepository(tradingHistory);
+    await repository.save(data);
+    console.log(`New data added to DB for - ${data.pair}`);
+    return true;
+  } catch (e) {
+    throw Error(`Failed to save data to DB with error - ${e}`);
+  }
 }

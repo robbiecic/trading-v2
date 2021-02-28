@@ -17,23 +17,23 @@ export interface Deal {
 }
 
 @Entity()
-export class MarketDataEntity {
+export class tradingHistory {
   @PrimaryColumn({ type: "datetime" })
   eventDate: Date;
   @PrimaryColumn({ type: "varchar" })
-  eventAction: string;
+  eventAction: String;
   @PrimaryColumn({ type: "varchar" })
-  dealID: string;
+  dealID: String;
   @Column({ type: "varchar" })
-  dealReference: string;
+  dealReference: String;
   @Column({ type: "varchar" })
-  epic: string;
+  epic: String;
   @Column({ type: "double" })
   level: Number;
   @Column({ type: "double" })
   size: Number;
   @Column({ type: "varchar" })
-  direction: string;
+  direction: String;
   @Column({ type: "double" })
   profit: Number;
   @Column({ type: "double" })
@@ -41,5 +41,5 @@ export class MarketDataEntity {
   @Column({ type: "datetime" })
   originalOrderDateUTC: Date;
   @Column({ type: "varchar" })
-  pair: string;
+  pair: String;
 }

@@ -295,7 +295,7 @@ export default class IG {
     }
   }
 
-  public async closePosition(position: Positions, order: OrderEvent): Promise<any> {
+  public async closePosition(position: Positions, order: OrderEvent): Promise<string> {
     let headers = await this.hydrateHeaders();
     let getCloseResponse: AxiosResponse;
     headers.Version = "1";

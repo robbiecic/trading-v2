@@ -18,7 +18,7 @@
     "test": "jest",
     "compile": "export NODE_ENV=prod && npm run clean && tsc && npm run post-build",
     "post-build": "cpx package.json built/ && cpx ormconfig.js built/ && cp -R node_modules/ built/node_modules/",
-    "dev": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({\"pair\": \"AUD/USD\"})'",
+    "dev": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({\"actionType\": \"Open\",\"direction\": \"LONG\",\"pair\": \"AUD/USD\", \"orderDateUTC\":\"\", \"priceTarget\": \"\"})'",
     "clean": "rm -f -r built/"
   },
   "devDependencies": {
