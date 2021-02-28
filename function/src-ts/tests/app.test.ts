@@ -2,8 +2,8 @@ import { mapEventObjectToOrderEvent } from "../app";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
 
 const orderEvent: OrderEvent = {
-  actionType: ActionTypes.Open,
-  direction: DirectionTypes.LONG,
+  actionType: ("Open" as unknown) as ActionTypes,
+  direction: ("LONG" as unknown) as DirectionTypes,
   pair: "AUD/USD",
   orderDateUTC: new Date("2021-02-26 17:40:22"),
   priceTarget: 0.761,

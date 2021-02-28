@@ -24,7 +24,6 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
       //Map queue to orderEvent object
       let queueOrderObject = JSON.parse(queueOrder);
       let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
-
       console.log(orderObject);
       await doOrder(orderObject);
     });
