@@ -41,10 +41,10 @@ async function closePosition(order: OrderEvent) {
   });
 }
 
-function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): Deal {
+export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): Deal {
   let returnDeal: Deal = {
     eventDate: confirmObject.date,
-    eventAction: order.actionType.toString(),
+    eventAction: ActionTypes[order.actionType],
     dealID: confirmObject.dealId,
     dealReference: confirmObject.dealReference,
     epic: confirmObject.epic.toString(),
