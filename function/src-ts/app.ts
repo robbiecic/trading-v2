@@ -23,13 +23,8 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
     event.Records.forEach(async (queueOrder: string) => {
       //Map queue to orderEvent object
       let queueOrderObject = JSON.parse(queueOrder);
-      let orderObject: OrderEvent = {
-        actionType: queueOrderObject.actionType as ActionTypes,
-        direction: queueOrderObject.direction as DirectionTypes,
-        pair: queueOrderObject.pair,
-        orderDateUTC: new Date(queueOrderObject.orderDateUTC),
-        priceTarget: queueOrderObject.priceTarget,
-      };
+      let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
+
       console.log(orderObject);
       await doOrder(orderObject);
     });
@@ -47,3 +42,14 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
     };
   }
 };
+
+export function mapEventObjectToOrderEvent(queueObject: any): OrderEvent {
+  let orderEvent: OrderEvent = {
+    actionType: queueObject.actionType as ActionTypes,
+    direction: queueObject.direction as DirectionTypes,
+    pair: queueObject.pair,
+    orderDateUTC: new Date(queueObject.orderDateUTC),
+    priceTarget: queueObject.priceTarget,
+  };
+  return orderEvent;
+}
