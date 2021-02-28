@@ -20,13 +20,13 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
     //Do Something
     connection = await createConnection();
     //We might have multiple orders to process from the queue
-    // event.Records.forEach(async (queueOrder: string) => {
-    //   //Map queue to orderEvent object
-    //   let queueOrderObject = JSON.parse(queueOrder);
-    //   let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
-    //   console.log(`Order for this event is ${orderObject}`);
-    //   await doOrder(orderObject);
-    // });
+    event.Records.forEach(async (queueOrder: any) => {
+      //Map queue to orderEvent object
+      let queueOrderObject = JSON.parse(queueOrder.body);
+      let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
+      console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
+      await doOrder(orderObject);
+    });
     await connection.close();
     return {
       statusCode: 200,

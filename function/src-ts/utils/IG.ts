@@ -199,7 +199,7 @@ export default class IG {
       console.log(`Prices for ${epic} are ${JSON.stringify(priceData)}`);
       return priceData;
     } catch (e) {
-      throw new Error(`Could not fetch prices data for ${epic} with error - ${e.statusText}`);
+      throw new Error(`Could not fetch prices data for ${epic} with error - ${JSON.stringify(e)}`);
     }
   }
 
@@ -247,12 +247,12 @@ export default class IG {
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     try {
-      let response = await axios.post(this.igUrl + "/deal/positions/otc", orderTicket, {
+      let response = await axios.post(this.igUrl + "/positions/otc", orderTicket, {
         headers: headers,
       });
       return response.data.dealReference;
     } catch (e) {
-      throw new Error(`Could not place trade: ${e.statusText}`);
+      throw new Error(`Could not place trade: ${JSON.stringify(e)}`);
     }
   }
 
@@ -261,7 +261,7 @@ export default class IG {
     let getPositionsResponse: AxiosResponse;
     let returnPositions: Array<Positions> = [];
     try {
-      getPositionsResponse = await axios.get(`${this.igUrl}/deal/positions`, {
+      getPositionsResponse = await axios.get(`${this.igUrl}/positions`, {
         headers: headers,
       });
       getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
@@ -291,7 +291,7 @@ export default class IG {
       });
       return returnPositions;
     } catch (e) {
-      throw new Error(`Could not get open positions: ${e.statusText}`);
+      throw new Error(`Could not get open positions: ${JSON.stringify(e)}`);
     }
   }
 
@@ -310,7 +310,7 @@ export default class IG {
       getCloseResponse = await axios.delete(`${this.igUrl}/positions/otc`, { data: body, headers: headers });
       return getCloseResponse.data.dealReference;
     } catch (e) {
-      throw new Error(`Could not close position: ${e.statusText}`);
+      throw new Error(`Could not close position: ${JSON.stringify(e)}`);
     }
   }
 
@@ -343,7 +343,7 @@ export default class IG {
       };
       return returnData;
     } catch (e) {
-      throw new Error(`Could not get deal reference details: ${e.statusText}`);
+      throw new Error(`Could not get deal reference details: ${JSON.stringify(e)}`);
     }
   }
 

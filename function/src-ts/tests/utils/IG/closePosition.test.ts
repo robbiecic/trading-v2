@@ -35,6 +35,6 @@ describe("IG close positions test suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.delete.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.closePosition(expectedPositions[0], orderEvent)).rejects.toThrow(Error(`Could not close position: Bad Request`));
+    await expect(ig.closePosition(expectedPositions[0], orderEvent)).rejects.toThrow(Error);
   });
 });

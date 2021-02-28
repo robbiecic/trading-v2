@@ -34,6 +34,6 @@ describe("IG open positions test suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.post.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.placeOrder(orderEvent)).rejects.toThrow(Error(`Could not place trade: Bad Request`));
+    await expect(ig.placeOrder(orderEvent)).rejects.toThrow(Error);
   });
 });

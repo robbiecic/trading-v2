@@ -26,8 +26,6 @@ describe("IG price data test suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.getPrices("AUD/USD", resolutions.MINUTE_10)).rejects.toThrow(
-      Error(`Could not fetch prices data for CS.D.AUDUSD.MINI.IP with error - Bad Request`)
-    );
+    await expect(ig.getPrices("AUD/USD", resolutions.MINUTE_10)).rejects.toThrow(Error);
   });
 });

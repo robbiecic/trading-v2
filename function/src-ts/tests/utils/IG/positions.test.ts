@@ -26,6 +26,6 @@ describe("IG positions data test suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.getOpenPositions()).rejects.toThrow(Error(`Could not get open positions: Bad Request`));
+    await expect(ig.getOpenPositions()).rejects.toThrow(Error);
   });
 });

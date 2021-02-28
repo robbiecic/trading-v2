@@ -28,6 +28,6 @@ describe("IG confirms test suite", () => {
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 400, statusText: "Bad Request" }));
-    await expect(ig.getDealDetails(dealReference)).rejects.toThrow(Error(`Could not get deal reference details: Bad Request`));
+    await expect(ig.getDealDetails(dealReference)).rejects.toThrow(Error);
   });
 });
