@@ -6,13 +6,17 @@ import { getConnection } from "typeorm";
 const ig = new IG();
 
 export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
+  await ig.connect();
   if (order.actionType === ActionTypes.Open) {
     await openPosition(order);
+    await ig.closeConnection();
     return true;
   } else if (order.actionType === ActionTypes.Close) {
     await closePosition(order);
+    await ig.closeConnection();
     return true;
   } else {
+    await ig.closeConnection();
     throw new Error(`actionType not supported with: ${order.actionType}`);
   }
 }
@@ -23,7 +27,7 @@ async function openPosition(order: OrderEvent) {
   console.log(`Open position with deal reference - ${dealReference}`);
   //Get deal reference details
   const dealDetails = await ig.getDealDetails(dealReference);
-  console.log(`Detail details are - ${JSON.stringify(dealDetails)}`);
+  console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
   //Map details to Deal Type, IG will return it's own dataset
   const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
   console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
@@ -46,10 +50,9 @@ async function closePosition(order: OrderEvent) {
       console.log(`Closed position with deal reference - ${dealReference}`);
       //Get deal reference details
       const dealDetails = await ig.getDealDetails(dealReference);
-      console.log(`Detail details are - ${dealReference}`);
+      console.log(`Deal details are - ${dealReference}`);
       //Map details to Deal Type, IG will return it's own dataset
       const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
-      console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
       //Log into DB
       await saveData(finalOrderDetails);
     }
