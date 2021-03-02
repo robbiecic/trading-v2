@@ -251,7 +251,6 @@ export default class IG {
     headers.Version = "2";
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
-    console.log("Headers - ", JSON.stringify(headers));
     try {
       let response = await axios.post(this.igUrl + "/positions/otc", orderTicket, {
         headers: headers,

@@ -20,10 +20,10 @@ export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
 async function openPosition(order: OrderEvent) {
   //Place order in IG
   const dealReference = await ig.placeOrder(order);
-  console.log(`Deal reference is ${dealReference}`);
+  console.log(`Open position with deal reference - ${dealReference}`);
   //Get deal reference details
   const dealDetails = await ig.getDealDetails(dealReference);
-  console.log(`Detail details are ${JSON.stringify(dealDetails)}`);
+  console.log(`Detail details are - ${JSON.stringify(dealDetails)}`);
   //Map details to Deal Type, IG will return it's own dataset
   const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
   console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
@@ -36,16 +36,20 @@ async function closePosition(order: OrderEvent) {
   let positions: Array<Positions> = await ig.getOpenPositions();
   //Loop through all open positions
   positions.forEach(async (position: Positions) => {
+    console.log(`Position - ${JSON.stringify(position)}`);
     let pair = ig.getPairFromEpic(position.market.epic);
     let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
     //Match on pair & position to close it out
     if (pair == order.pair && order.direction == positionDirection) {
       //Close position
       const dealReference = await ig.closePosition(position, order);
+      console.log(`Closed position with deal reference - ${dealReference}`);
       //Get deal reference details
       const dealDetails = await ig.getDealDetails(dealReference);
+      console.log(`Detail details are - ${dealReference}`);
       //Map details to Deal Type, IG will return it's own dataset
       const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+      console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
       //Log into DB
       await saveData(finalOrderDetails);
     }
