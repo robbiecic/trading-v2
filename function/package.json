@@ -12,6 +12,7 @@
     "moment": "^2.29.1",
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
+    "retry-axios": "^2.4.0",
     "typeorm": "^0.2.31"
   },
   "scripts": {

@@ -3,6 +3,10 @@ import config from "../config";
 import { MarketDataInterface } from "../entity/MarketData";
 import { OrderEvent, DirectionTypes } from "../entity/OrderEvent";
 import moment from "moment";
+import * as rax from "retry-axios";
+
+//This will force failed axios requests to retry 3 times by default
+const interceptorId = rax.attach();
 
 interface header {
   "Content-Type": String;
@@ -208,7 +212,7 @@ export default class IG {
     headers = {
       "Content-Type": "application/json; charset=UTF-8",
       Accept: "application/json; charset=UTF-8",
-      Version: "1",
+      Version: "2",
       "X-IG-API-KEY": this.igApiKey,
     };
     return headers;
@@ -244,8 +248,10 @@ export default class IG {
 
   public async placeOrder(order: OrderEvent): Promise<string> {
     let headers = await this.hydrateHeaders();
+    headers.Version = "2";
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
+    console.log("Headers - ", JSON.stringify(headers));
     try {
       let response = await axios.post(this.igUrl + "/positions/otc", orderTicket, {
         headers: headers,
@@ -318,7 +324,7 @@ export default class IG {
     let headers = await this.hydrateHeaders();
     let returnData: Confirms;
     try {
-      const getCloseResponse = await axios.get(`${this.igUrl}confirms/${dealReference}`, { headers: headers });
+      const getCloseResponse = await axios.get(`${this.igUrl}/confirms/${dealReference}`, { headers: headers });
       returnData = {
         date: new Date(getCloseResponse.data.date),
         status: getCloseResponse.data.status,

@@ -34,12 +34,12 @@ export class tradingHistory {
   size: Number;
   @Column({ type: "varchar" })
   direction: String;
-  @Column({ type: "double" })
+  @Column({ type: "double", nullable: true })
   profit: Number;
-  @Column({ type: "double" })
+  @Column({ type: "double", nullable: true })
   targetPrice: Number;
-  @Column({ type: "datetime" })
+  @Column({ type: "datetime", nullable: true })
   originalOrderDateUTC: Date;
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", nullable: true })
   pair: String;
 }

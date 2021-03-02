@@ -26,8 +26,8 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
       let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
       console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
       await doOrder(orderObject);
+      await connection.close();
     });
-    await connection.close();
     return {
       statusCode: 200,
       body: "Something",

@@ -20,10 +20,13 @@ export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
 async function openPosition(order: OrderEvent) {
   //Place order in IG
   const dealReference = await ig.placeOrder(order);
+  console.log(`Deal reference is ${dealReference}`);
   //Get deal reference details
   const dealDetails = await ig.getDealDetails(dealReference);
+  console.log(`Detail details are ${JSON.stringify(dealDetails)}`);
   //Map details to Deal Type, IG will return it's own dataset
   const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+  console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
   //Log into DB
   await saveData(finalOrderDetails);
 }
@@ -72,7 +75,7 @@ async function saveData(data: Deal): Promise<boolean | Error> {
     const connection = await getConnection();
     const repository = connection.getRepository(tradingHistory);
     await repository.save(data);
-    console.log(`New data added to DB for - ${data.pair}`);
+    console.log(`Trade data added to DB for - ${data.pair}`);
     return true;
   } catch (e) {
     throw Error(`Failed to save data to DB with error - ${e}`);
