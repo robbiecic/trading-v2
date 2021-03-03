@@ -1,24 +1,26 @@
 import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
 import { Deal, tradingHistory } from "../entity/Deal";
 import IG, { Positions, Confirms } from "../utils/IG";
-import { getConnection } from "typeorm";
+import { getConnection, Repository, Connection } from "typeorm";
 
 const ig = new IG();
 
 export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
   await ig.connect();
+  const connection: Connection = getConnection();
+  const repository: Repository<any> = connection.getRepository(tradingHistory);
   if (order.actionType === ActionTypes.Open) {
-    await openPosition(order);
+    await openPosition(order, repository);
     return true;
   } else if (order.actionType === ActionTypes.Close) {
-    await closePosition(order);
+    await closePosition(order, repository);
     return true;
   } else {
     throw new Error(`actionType not supported with: ${order.actionType}`);
   }
 }
 
-async function openPosition(order: OrderEvent) {
+async function openPosition(order: OrderEvent, repository: Repository<any>) {
   //Place order in IG
   const dealReference = await ig.placeOrder(order);
   console.log(`Open position with deal reference - ${dealReference}`);
@@ -29,10 +31,10 @@ async function openPosition(order: OrderEvent) {
   const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
   console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
   //Log into DB
-  await saveData(finalOrderDetails);
+  await saveData(finalOrderDetails, repository);
 }
 
-async function closePosition(order: OrderEvent) {
+async function closePosition(order: OrderEvent, repository: Repository<any>) {
   //Get open positions from IG
   let positions: Array<Positions> = await ig.getOpenPositions();
   if (positions.length === 0) {
@@ -40,25 +42,25 @@ async function closePosition(order: OrderEvent) {
     return;
   }
   //Loop through all open positions
-  positions.forEach(async (position: Positions) => {
+  for (let position of positions) {
     console.log(`Position - ${JSON.stringify(position)}`);
     let pair = ig.getPairFromEpic(position.market.epic);
     let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
     //Match on pair & position to close it out
     if (pair == order.pair && order.direction == positionDirection) {
       //Close position
-      const dealReference = await ig.closePosition(position, order);
+      let dealReference = await ig.closePosition(position, order);
       console.log(`Closed position with deal reference - ${dealReference}`);
       //Get deal reference details
-      const dealDetails = await ig.getDealDetails(dealReference);
+      let dealDetails = await ig.getDealDetails(dealReference);
       console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
       //Map details to Deal Type, IG will return it's own dataset
-      const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+      let finalOrderDetails = mapConfirmToDeal(dealDetails, order);
       console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
       //Log into DB
-      await saveData(finalOrderDetails);
+      await saveData(finalOrderDetails, repository);
     }
-  });
+  }
 }
 
 export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): Deal {
@@ -71,7 +73,7 @@ export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): De
     level: confirmObject.level,
     size: confirmObject.size,
     direction: confirmObject.direction,
-    profit: confirmObject.profit ?? null,
+    profit: confirmObject.profit,
     targetPrice: order.priceTarget,
     originalOrderDateUTC: order.orderDateUTC,
     pair: order.pair,
@@ -79,10 +81,8 @@ export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): De
   return returnDeal;
 }
 
-async function saveData(data: Deal): Promise<void> {
+async function saveData(data: Deal, repository: Repository<any>): Promise<void> {
   try {
-    const connection = getConnection();
-    const repository = connection.getRepository(tradingHistory);
     await repository.save(data);
     console.log(`Trade results added to DB for - ${data.pair}`);
   } catch (e) {

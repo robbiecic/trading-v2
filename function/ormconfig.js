@@ -8,6 +8,6 @@ module.exports = {
   password: DB_PASSWORD || "password",
   database: DB_SCHEMA || "trading",
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: NODE_ENV == "dev" ? ["built/entity/**/*.js"] : ["entity/**/*.js"],
 };
