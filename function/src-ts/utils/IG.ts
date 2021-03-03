@@ -7,20 +7,18 @@ import * as rax from "retry-axios";
 
 //This will force failed axios requests to retry 3 times by default
 const interceptorId = rax.attach();
+const instance = axios.create({
+  baseURL: config.ig.url,
+});
 
 interface header {
   "Content-Type": String;
   Accept: String;
   Version: String;
   "X-IG-API-KEY": String;
-  "X-SECURITY-TOKEN"?: String;
-  CST?: String;
+  Authorization?: String;
   _method?: String;
-}
-
-interface tokens {
-  CST: String;
-  "X-SECURITY-TOKEN": String;
+  "IG-ACCOUNT-ID"?: String;
 }
 
 export enum epics {
@@ -124,7 +122,6 @@ export default class IG {
   igPassword: String;
   igUrl: String;
   headers: header;
-  currentTokens: tokens;
 
   constructor() {
     this.igApiKey = config.ig.apiKey;
@@ -136,52 +133,23 @@ export default class IG {
 
   public async connect(): Promise<void> {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
-    let loginResponse: AxiosResponse;
+    this.headers.Version = "3";
     try {
-      loginResponse = await axios.post(this.igUrl + "/session", body, {
+      const { data } = await instance.post(this.igUrl + "/session", body, {
         headers: this.headers,
       });
-      this.headers["X-SECURITY-TOKEN"] = loginResponse.headers["x-security-token"];
-      this.headers.CST = loginResponse.headers["cst"];
-      // "X-SECURITY-TOKEN": loginResponse.headers["x-security-token"],
-      // CST: loginResponse.headers["cst"],
+      this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
+      this.headers["IG-ACCOUNT-ID"] = data.accountId;
     } catch (error) {
       console.log(error);
       throw new Error(`Could not connect to IG with error - ${error.response.status} ${JSON.stringify(error.response.data)}`);
     }
   }
 
-  // private async hydrateHeaders(): Promise<void> {
-  //   // this.currentTokens = await this.isConnected();
-  //   // this.headers.CST = this.currentTokens.CST;
-  //   // this.headers["X-SECURITY-TOKEN"] = this.currentTokens["X-SECURITY-TOKEN"];
-  //   // return this.headers;
-  //   const connected = await this.isConnected();
-  //   if (!connected) {
-  //     await this.connect();
-  //   }
-  // }
-
-  // public async isConnected(): Promise<boolean> {
-  //   let sessionResponse: AxiosResponse;
-  //   try {
-  //     sessionResponse = await axios.get(`${this.igUrl}/session`, {
-  //       headers: this.headers,
-  //     });
-  //     return true;
-  //     // "X-SECURITY-TOKEN": sessionResponse.headers["x-security-token"],
-  //     // CST: sessionResponse.headers["cst"],
-  //   } catch (e) {
-  //     // this.headers["Version"] = "1";
-  //     // return await this.connect();
-  //     return false;
-  //   }
-  // }
-
   public async closeConnection() {
     let deleteHeader = this.headers;
     deleteHeader._method = "DELETE";
-    await axios.put(`${this.igUrl}/session`, null, { headers: deleteHeader });
+    await instance.put(`${this.igUrl}/session`, null, { headers: deleteHeader });
   }
 
   public async getPrices(fxPair: string, resolution: resolutions): Promise<MarketDataInterface> {
@@ -191,7 +159,7 @@ export default class IG {
     let url = `${this.igUrl}/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
     let getDataResponse: AxiosResponse;
     try {
-      getDataResponse = await axios.get(url, { headers: this.headers });
+      getDataResponse = await instance.get(url, { headers: this.headers });
       let data = getDataResponse.data.prices[0];
       let priceData: MarketDataInterface = {
         pair: fxPair,
@@ -211,50 +179,13 @@ export default class IG {
     }
   }
 
-  private setHeaders() {
-    this.headers = {
-      "Content-Type": "application/json; charset=UTF-8",
-      Accept: "application/json; charset=UTF-8",
-      Version: "1",
-      "X-IG-API-KEY": this.igApiKey,
-    };
-  }
-
-  public getIgEpicFromPair(fxPair: string): epics {
-    switch (fxPair) {
-      case "AUD/USD": {
-        return epics.AUDUSD;
-      }
-      case "EUR/USD": {
-        return epics.EURUSD;
-      }
-      case "USD/JPY": {
-        return epics.USDJPY;
-      }
-    }
-  }
-
-  public getPairFromEpic(epic: epics): string {
-    switch (epic) {
-      case epics.AUDUSD: {
-        return "AUD/USD";
-      }
-      case epics.EURUSD: {
-        return "EUR/USD";
-      }
-      case epics.USDJPY: {
-        return "USD/JPY";
-      }
-    }
-  }
-
   public async placeOrder(order: OrderEvent): Promise<string> {
     this.headers.Version = "2";
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     console.log(`Headers - ${JSON.stringify(this.headers)}`);
     try {
-      let response = await axios.post(this.igUrl + "/positions/otc", orderTicket, {
+      let response = await instance.post("/positions/otc", orderTicket, {
         headers: this.headers,
       });
       return response.data.dealReference;
@@ -268,7 +199,7 @@ export default class IG {
     let returnPositions: Array<Positions> = [];
     this.headers.Version = "2";
     try {
-      getPositionsResponse = await axios.get(`${this.igUrl}/positions`, {
+      getPositionsResponse = await instance.get(`${this.igUrl}/positions`, {
         headers: this.headers,
       });
       getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
@@ -306,7 +237,6 @@ export default class IG {
     let getCloseResponse: AxiosResponse;
     this.headers.Version = "1";
     this.headers._method = "DELETE";
-    console.log(`this.headers = ${JSON.stringify(this.headers)}`);
     let body = {
       dealId: position.position.dealId,
       direction: order.direction == DirectionTypes.LONG ? "SELL" : "BUY",
@@ -315,7 +245,7 @@ export default class IG {
     };
     console.log(`Closing trading with body - ${JSON.stringify(body)}`);
     try {
-      getCloseResponse = await axios.post(`${this.igUrl}/positions/otc`, body, { headers: this.headers });
+      getCloseResponse = await instance.post(`${this.igUrl}/positions/otc`, body, { headers: this.headers });
       delete this.headers._method;
       return getCloseResponse.data.dealReference;
     } catch (e) {
@@ -326,9 +256,8 @@ export default class IG {
   public async getDealDetails(dealReference: string): Promise<Confirms> {
     this.headers.Version = "1";
     let returnData: Confirms;
-    console.log(`Deal details headers are = ${JSON.stringify(this.headers)}`);
     try {
-      const getCloseResponse = await axios.get(`${this.igUrl}/confirms/${dealReference}`, { headers: this.headers });
+      const getCloseResponse = await instance.get(`${this.igUrl}/confirms/${dealReference}`, { headers: this.headers });
       returnData = {
         date: new Date(getCloseResponse.data.date),
         status: getCloseResponse.data.status,
@@ -374,5 +303,42 @@ export default class IG {
       guaranteedStop: false,
       timeInForce: "FILL_OR_KILL",
     };
+  }
+
+  private setHeaders() {
+    this.headers = {
+      "Content-Type": "application/json; charset=UTF-8",
+      Accept: "application/json; charset=UTF-8",
+      Version: "1",
+      "X-IG-API-KEY": this.igApiKey,
+    };
+  }
+
+  public getIgEpicFromPair(fxPair: string): epics {
+    switch (fxPair) {
+      case "AUD/USD": {
+        return epics.AUDUSD;
+      }
+      case "EUR/USD": {
+        return epics.EURUSD;
+      }
+      case "USD/JPY": {
+        return epics.USDJPY;
+      }
+    }
+  }
+
+  public getPairFromEpic(epic: epics): string {
+    switch (epic) {
+      case epics.AUDUSD: {
+        return "AUD/USD";
+      }
+      case epics.EURUSD: {
+        return "EUR/USD";
+      }
+      case epics.USDJPY: {
+        return "USD/JPY";
+      }
+    }
   }
 }
