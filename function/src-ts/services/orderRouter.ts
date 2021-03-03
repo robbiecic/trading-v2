@@ -35,6 +35,10 @@ async function openPosition(order: OrderEvent) {
 async function closePosition(order: OrderEvent) {
   //Get open positions from IG
   let positions: Array<Positions> = await ig.getOpenPositions();
+  if (positions.length === 0) {
+    console.log("No positions open that need to be closed");
+    return;
+  }
   //Loop through all open positions
   positions.forEach(async (position: Positions) => {
     console.log(`Position - ${JSON.stringify(position)}`);
@@ -75,13 +79,12 @@ export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): De
   return returnDeal;
 }
 
-async function saveData(data: Deal): Promise<boolean | Error> {
+async function saveData(data: Deal): Promise<void> {
   try {
-    const connection = await getConnection();
+    const connection = getConnection();
     const repository = connection.getRepository(tradingHistory);
     await repository.save(data);
-    console.log(`Trade data added to DB for - ${data.pair}`);
-    return true;
+    console.log(`Trade results added to DB for - ${data.pair}`);
   } catch (e) {
     throw Error(`Failed to save data to DB with error - ${e}`);
   }
