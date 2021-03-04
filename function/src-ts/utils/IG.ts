@@ -1,15 +1,21 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 import config from "../config";
 import { MarketDataInterface } from "../entity/MarketData";
 import { OrderEvent, DirectionTypes } from "../entity/OrderEvent";
 import moment from "moment";
 import * as rax from "retry-axios";
 
-//This will force failed axios requests to retry 3 times by default
-const interceptorId = rax.attach();
-const instance = axios.create({
+const instance: AxiosInstance = axios.create({
   baseURL: config.ig.url,
 });
+
+//This will force failed axios requests to retry 3 times by default, 500ms apart
+instance.defaults.raxConfig = {
+  instance: instance,
+  retryDelay: 500,
+};
+
+const interceptorId = rax.attach(instance);
 
 interface header {
   "Content-Type": String;
@@ -135,7 +141,7 @@ export default class IG {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     this.headers.Version = "3";
     try {
-      const { data } = await instance.post(this.igUrl + "/session", body, {
+      const { data } = await instance.post("/session", body, {
         headers: this.headers,
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
@@ -149,14 +155,14 @@ export default class IG {
   public async closeConnection() {
     let deleteHeader = this.headers;
     deleteHeader._method = "DELETE";
-    await instance.put(`${this.igUrl}/session`, null, { headers: deleteHeader });
+    await instance.put(`/session`, null, { headers: deleteHeader });
   }
 
   public async getPrices(fxPair: string, resolution: resolutions): Promise<MarketDataInterface> {
     // await this.hydrateHeaders();
     this.headers.Version = "3";
     let epic = this.getIgEpicFromPair(fxPair);
-    let url = `${this.igUrl}/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
+    let url = `/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
     let getDataResponse: AxiosResponse;
     try {
       getDataResponse = await instance.get(url, { headers: this.headers });
@@ -199,7 +205,7 @@ export default class IG {
     let returnPositions: Array<Positions> = [];
     this.headers.Version = "2";
     try {
-      getPositionsResponse = await instance.get(`${this.igUrl}/positions`, {
+      getPositionsResponse = await instance.get(`/positions`, {
         headers: this.headers,
       });
       getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
@@ -245,7 +251,7 @@ export default class IG {
     };
     console.log(`Closing trading with body - ${JSON.stringify(body)}`);
     try {
-      getCloseResponse = await instance.post(`${this.igUrl}/positions/otc`, body, { headers: this.headers });
+      getCloseResponse = await instance.post(`/positions/otc`, body, { headers: this.headers });
       delete this.headers._method;
       return getCloseResponse.data.dealReference;
     } catch (e) {
@@ -257,7 +263,7 @@ export default class IG {
     this.headers.Version = "1";
     let returnData: Confirms;
     try {
-      const getCloseResponse = await instance.get(`${this.igUrl}/confirms/${dealReference}`, { headers: this.headers });
+      const getCloseResponse = await instance.get(`/confirms/${dealReference}`, { headers: this.headers });
       returnData = {
         date: new Date(getCloseResponse.data.date),
         status: getCloseResponse.data.status,
