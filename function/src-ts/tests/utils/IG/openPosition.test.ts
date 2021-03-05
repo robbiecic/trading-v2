@@ -4,9 +4,23 @@ import IG from "../../../utils/IG";
 import { mockResponse } from "./factories";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
 
-jest.mock("axios");
+//Set up of axios mock
 const mockedAxios = mocked(axios, true);
+jest.mock("axios", () => ({
+  defaults: {
+    baseURL: "test",
+    raxConfig: {},
+  },
+  create: () => axios,
+  get: jest.fn(() => Promise),
+  post: jest.fn(() => Promise),
+}));
+jest.mock("retry-axios", () => ({
+  attach: () => 12345,
+}));
+
 const ig = new IG();
+const oAuthToken = { data: { oauthToken: { access_token: "123456" } } };
 
 const orderEvent: OrderEvent = {
   actionType: ActionTypes.Open,
@@ -21,8 +35,6 @@ describe("IG open positions test suite", () => {
 
   it("Should open position successfully", async () => {
     let expectedResponse = { dealReference: "123456" };
-    //Session
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.post.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
     const actualResponse = await ig.placeOrder(orderEvent);
@@ -30,8 +42,6 @@ describe("IG open positions test suite", () => {
   });
 
   it("Should throw an error for 4xx", async () => {
-    //Session
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.post.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
     await expect(ig.placeOrder(orderEvent)).rejects.toThrow(Error);

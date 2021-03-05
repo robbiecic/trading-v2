@@ -5,18 +5,34 @@ import { mockResponse } from "./factories";
 import { confirms } from "./api-responses/confirms";
 import { expectedConfirms } from "./expected-results/confirms";
 
-jest.mock("axios");
+//Set up of axios mock
 const mockedAxios = mocked(axios, true);
+jest.mock("axios", () => ({
+  defaults: {
+    baseURL: "test",
+    raxConfig: {},
+  },
+  create: () => axios,
+  get: jest.fn(() => Promise),
+  post: jest.fn(() => Promise),
+}));
+jest.mock("retry-axios", () => ({
+  attach: () => 12345,
+}));
+
 const ig = new IG();
+const oAuthToken = { data: { oauthToken: { access_token: "123456" } } };
 
 const dealReference = "WZJ8FXKEVWF44TP";
 
 describe("IG confirms test suite", () => {
   afterEach(jest.clearAllMocks);
 
+  beforeEach(() => {
+    mockedAxios.post.mockResolvedValueOnce(mockResponse.build(oAuthToken));
+  });
+
   it("Should retrieve confirms data properly", async () => {
-    //Session
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: confirms }));
     const actualResponse = await ig.getDealDetails(dealReference);
@@ -24,8 +40,6 @@ describe("IG confirms test suite", () => {
   });
 
   it("Should throw an error for 4xx", async () => {
-    //Session
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ config: { method: "GET", url: `${ig.igUrl}/session` } }));
     //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 400, statusText: "Bad Request" }));
     await expect(ig.getDealDetails(dealReference)).rejects.toThrow(Error);

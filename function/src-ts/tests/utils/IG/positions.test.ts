@@ -5,8 +5,8 @@ import { mockResponse } from "./factories";
 import { positions } from "./api-responses/positions";
 import { expectedPositions } from "./expected-results/positions";
 
+//Set up of axios mock
 const mockedAxios = mocked(axios, true);
-
 jest.mock("axios", () => ({
   defaults: {
     baseURL: "test",
@@ -16,7 +16,6 @@ jest.mock("axios", () => ({
   get: jest.fn(() => Promise),
   post: jest.fn(() => Promise),
 }));
-
 jest.mock("retry-axios", () => ({
   attach: () => 12345,
 }));
