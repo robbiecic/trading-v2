@@ -38,7 +38,7 @@ describe("IG close positions test suite", () => {
   it("Should close position successfully", async () => {
     let expectedResponse = { dealReference: "123456" };
     //Prices call
-    mockedAxios.delete.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
+    mockedAxios.post.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
     const actualResponse = await ig.closePosition(expectedPositions[0], orderEvent);
     expect(actualResponse).toEqual("123456");
   });
