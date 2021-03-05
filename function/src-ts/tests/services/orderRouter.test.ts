@@ -12,7 +12,7 @@ const orderEvent: OrderEvent = {
 };
 
 describe("Test suite for OrderRouter.ts", () => {
-  it("Should close position successfully", async () => {
+  it("Confirm to deal mapping works as expected", async () => {
     const actualResponse = mapConfirmToDeal(expectedConfirms, orderEvent);
     expect(actualResponse).toEqual(expectedDeal);
   });
