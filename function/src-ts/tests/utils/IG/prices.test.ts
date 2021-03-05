@@ -22,7 +22,6 @@ jest.mock("retry-axios", () => ({
 }));
 
 const ig = new IG();
-const oAuthToken = { data: { oauthToken: { access_token: "123456" } } };
 
 describe("IG price data test suite", () => {
   afterEach(jest.clearAllMocks);

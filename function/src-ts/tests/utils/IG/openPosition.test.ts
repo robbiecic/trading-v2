@@ -20,7 +20,6 @@ jest.mock("retry-axios", () => ({
 }));
 
 const ig = new IG();
-const oAuthToken = { data: { oauthToken: { access_token: "123456" } } };
 
 const orderEvent: OrderEvent = {
   actionType: ActionTypes.Open,

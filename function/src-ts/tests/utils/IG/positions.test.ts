@@ -21,15 +21,10 @@ jest.mock("retry-axios", () => ({
 }));
 
 // Set up oAuthToken
-const oAuthToken = { data: { oauthToken: { access_token: "123456" } } };
 const ig = new IG();
 
 describe("IG positions data test suite", () => {
   afterEach(jest.clearAllMocks);
-
-  beforeEach(() => {
-    mockedAxios.post.mockResolvedValueOnce(mockResponse.build(oAuthToken));
-  });
 
   it("Should get the correct position data back", async () => {
     //Prices call
