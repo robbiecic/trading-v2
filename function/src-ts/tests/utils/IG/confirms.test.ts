@@ -27,10 +27,6 @@ const dealReference = "WZJ8FXKEVWF44TP";
 describe("IG confirms test suite", () => {
   afterEach(jest.clearAllMocks);
 
-  beforeEach(() => {
-    mockedAxios.post.mockResolvedValueOnce(mockResponse.build(oAuthToken));
-  });
-
   it("Should retrieve confirms data properly", async () => {
     //Prices call
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: confirms }));
