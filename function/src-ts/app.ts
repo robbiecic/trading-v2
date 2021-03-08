@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { createConnection, Connection } from "typeorm";
 import { OrderEvent, ActionTypes, DirectionTypes } from "./entity/OrderEvent";
 import { doOrder } from "./services/orderRouter";
+import IG from "./utils/IG";
 
 /* event
  * {
@@ -16,6 +17,7 @@ import { doOrder } from "./services/orderRouter";
 
 export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> => {
   let connection: Connection;
+  const ig = new IG();
   try {
     //Do Something
     try {
@@ -29,7 +31,7 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
       let queueOrderObject = JSON.parse(queueOrder.body);
       let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
       console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
-      await doOrder(orderObject);
+      await doOrder(orderObject, ig);
     }
     await connection.close();
     return {

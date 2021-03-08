@@ -3,25 +3,23 @@ import { Deal, tradingHistory } from "../entity/Deal";
 import IG, { Positions, Confirms } from "../utils/IG";
 import { getConnection, Repository, Connection } from "typeorm";
 
-const ig = new IG();
-
-export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
+export async function doOrder(order: OrderEvent, ig: IG): Promise<boolean | Error> {
   await ig.connect(); //Will set oAuth token valid for ~60 seconds which is long enough
   const connection: Connection = getConnection();
   const repository: Repository<any> = connection.getRepository(tradingHistory);
   if (order.actionType === ActionTypes.Open) {
-    await openPosition(order, repository);
+    await openPosition(ig, order, repository);
     return true;
   } else if (order.actionType === ActionTypes.Close) {
-    const positions = await getPositions();
-    await closePosition(order, repository, positions);
+    const positions = await getPositions(ig);
+    await closePosition(ig, order, repository, positions);
     return true;
   } else {
     throw new Error(`actionType not supported with: ${order.actionType}`);
   }
 }
 
-async function openPosition(order: OrderEvent, repository: Repository<any>) {
+async function openPosition(ig: IG, order: OrderEvent, repository: Repository<any>) {
   //Place order in IG
   const dealReference = await ig.placeOrder(order);
   console.log(`Open position with deal reference - ${dealReference}`);
@@ -35,7 +33,7 @@ async function openPosition(order: OrderEvent, repository: Repository<any>) {
   await saveData(finalOrderDetails, repository);
 }
 
-async function getPositions(): Promise<Array<Positions>> {
+async function getPositions(ig: IG): Promise<Array<Positions>> {
   //Get open positions from IG
   let positions: Array<Positions> = await ig.getOpenPositions();
   if (positions.length === 0) {
@@ -44,7 +42,7 @@ async function getPositions(): Promise<Array<Positions>> {
   } else return positions;
 }
 
-export async function closePosition(order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
+export async function closePosition(ig: IG, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
   //Loop through all open positions
   for (let position of positions) {
     console.log(`Position - ${JSON.stringify(position)}`);
