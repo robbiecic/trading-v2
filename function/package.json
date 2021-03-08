@@ -20,7 +20,7 @@
     "compile": "export NODE_ENV=prod && npm run clean && tsc && npm run post-build",
     "post-build": "cpx package.json built/ && cpx ormconfig.js built/ && cp -R node_modules/ built/node_modules/",
     "dev-long-open": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({Records: [{body: \"{\\\"actionType\\\": \\\"Open\\\",\\\"direction\\\": \\\"SHORT\\\",\\\"pair\\\": \\\"AUD/USD\\\", \\\"orderDateUTC\\\":\\\"\\\", \\\"priceTarget\\\": 0.761}\"}]})'",
-    "dev-long-close": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({Records: [{body: \"{\\\"actionType\\\": \\\"Close\\\",\\\"direction\\\": \\\"LONG\\\",\\\"pair\\\": \\\"AUD/USD\\\", \\\"orderDateUTC\\\":\\\"\\\", \\\"priceTarget\\\": 0.761}\"}]})'",
+    "dev-long-close": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({Records: [{body: \"{\\\"actionType\\\": \\\"Close\\\",\\\"direction\\\": \\\"SHORT\\\",\\\"pair\\\": \\\"AUD/USD\\\", \\\"orderDateUTC\\\":\\\"\\\", \\\"priceTarget\\\": 0.761}\"}]})'",
     "clean": "rm -f -r built/"
   },
   "devDependencies": {
