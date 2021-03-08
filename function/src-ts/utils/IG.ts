@@ -294,7 +294,7 @@ export default class IG {
 
   public returnOrderTicket(order: OrderEvent): OrderTicket {
     return {
-      currencyCode: "USD",
+      currencyCode: this.returnCurrency(order.pair),
       direction: order.direction === DirectionTypes.LONG ? "BUY" : "SELL",
       epic: this.getIgEpicFromPair(order.pair),
       expiry: "-",
@@ -309,6 +309,19 @@ export default class IG {
       guaranteedStop: false,
       timeInForce: "FILL_OR_KILL",
     };
+  }
+
+  private returnCurrency(pair: string): string {
+    switch (pair) {
+      case "AUD/USD":
+        return "USD";
+      case "EUR/USD":
+        return "USD";
+      case "USD/JPY":
+        return "JPY";
+      default:
+        break;
+    }
   }
 
   private setHeaders() {

@@ -63,6 +63,8 @@ export async function closePosition(order: OrderEvent, repository: Repository<an
       console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
       //Log into DB
       await saveData(finalOrderDetails, repository);
+    } else {
+      console.log("Close order did not match any open positions.");
     }
   }
 }
