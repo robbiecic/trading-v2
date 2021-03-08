@@ -147,7 +147,7 @@ export default class IG {
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
       this.headers["IG-ACCOUNT-ID"] = data.accountId;
-      console.log(`Session headers are ${this.headers}`);
+      console.log(`Session headers are ${JSON.stringify(this.headers)}`);
     } catch (error) {
       console.log(`Cannot connect to IG with ${JSON.stringify(error)}`);
       throw new Error(`Cannot connect to IG with ${JSON.stringify(error)}`);
