@@ -142,7 +142,7 @@ export default class IG {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     this.headers.Version = "3";
     try {
-      const { data } = await instance.post("/session", body, {
+      const { data } = await axios.post(`${config.ig.url}/session`, body, {
         headers: this.headers,
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
