@@ -138,6 +138,7 @@ export default class IG {
   }
 
   public async connect(): Promise<void> {
+    console.log("Attempting to connect to IG...");
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     this.headers.Version = "3";
     try {
@@ -146,6 +147,7 @@ export default class IG {
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
       this.headers["IG-ACCOUNT-ID"] = data.accountId;
+      console.log(`Session headers are ${this.headers}`);
     } catch (error) {
       console.log(`Cannot connect to IG with ${JSON.stringify(error)}`);
       throw new Error(`Could not connect to IG with error - ${error.response.status} ${JSON.stringify(error.response.data)}`);
