@@ -12,7 +12,7 @@ const instance: AxiosInstance = axios.create({
 //This will force failed axios requests to retry 3 times by default, 500ms apart
 instance.defaults.raxConfig = {
   instance: instance,
-  retryDelay: 500,
+  retryDelay: 1500,
 };
 
 const interceptorId = rax.attach(instance);
