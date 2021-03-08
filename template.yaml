@@ -4,10 +4,10 @@ Description: Trading against IG
 
 Globals:
   Function:
-    Timeout: 6
+    Timeout: 15
 
 Resources:
-  MarketDataFunction:
+  TradingV2Function:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: function/built/
