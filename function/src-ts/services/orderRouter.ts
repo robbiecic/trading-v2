@@ -5,7 +5,7 @@ import { getConnection, Repository, Connection } from "typeorm";
 
 const ig = new IG();
 
-export async function doOrder(order: OrderEvent): Promise<boolean | Error> {=
+export async function doOrder(order: OrderEvent): Promise<boolean | Error> {
   await ig.connect(); //Will set oAuth token valid for ~60 seconds which is long enough
   const connection: Connection = getConnection();
   const repository: Repository<any> = connection.getRepository(tradingHistory);
