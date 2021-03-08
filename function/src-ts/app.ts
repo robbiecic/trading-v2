@@ -24,13 +24,13 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
       console.log("Already have connection with DB, skipping...");
     }
     //We might have multiple orders to process from the queue
-    await event.Records.forEach(async (queueOrder: any) => {
+    for (let queueOrder of event.Records) {
       //Map queue to orderEvent object
       let queueOrderObject = JSON.parse(queueOrder.body);
       let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
       console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
       await doOrder(orderObject);
-    });
+    }
     await connection.close();
     return {
       statusCode: 200,
