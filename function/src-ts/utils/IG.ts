@@ -150,7 +150,7 @@ export default class IG {
       console.log(`Session headers are ${this.headers}`);
     } catch (error) {
       console.log(`Cannot connect to IG with ${JSON.stringify(error)}`);
-      throw new Error(`Could not connect to IG with error - ${error.response.status} ${JSON.stringify(error.response.data)}`);
+      throw new Error(`Cannot connect to IG with ${JSON.stringify(error)}`);
     }
   }
 
