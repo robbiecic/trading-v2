@@ -142,6 +142,7 @@ export default class IG {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     this.headers.Version = "3";
     try {
+      console.log(`Connecting to IG with these headers ${JSON.stringify(this.headers)}`);
       const { data } = await axios.post(`${config.ig.url}/session`, body, {
         headers: this.headers,
       });
