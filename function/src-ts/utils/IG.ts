@@ -305,7 +305,7 @@ export default class IG {
       forceOpen: true,
       orderType: "MARKET",
       level: null,
-      limitDistance: 7,
+      limitDistance: 5,
       limitLevel: null,
       stopDistance: null,
       stopLevel: null,
