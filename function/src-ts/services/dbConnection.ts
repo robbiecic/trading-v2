@@ -24,5 +24,6 @@ export default async function createDbConnection(): Promise<Connection> {
     logging: false,
     synchronize: true,
   });
+  console.log(`Successfully connected to db ${DB_HOST || dbCredentialsJson.host}`);
   return connection;
 }
