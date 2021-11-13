@@ -1,0 +1,26 @@
+{
+  "pair": "AUD/USD",
+  "resolution": "MINUTE_10",
+  "trades": {
+    "data": [
+      {
+        "id": 1,
+        "orderDate": "2021-11-12 05:20:00",
+        "orderDateUTC": "2021-11-11 18:20:00",
+        "pair": "AUD/USD",
+        "priceTarget": 0.72932,
+        "direction": "SHORT",
+        "actionType": "Close"
+      },
+      {
+        "id": 1,
+        "orderDate": "2021-11-12 05:20:00",
+        "orderDateUTC": "2021-11-11 18:20:00",
+        "pair": "AUD/USD",
+        "priceTarget": 0.72932,
+        "direction": "SHORT",
+        "actionType": "Close"
+      }
+    ]
+  }
+}

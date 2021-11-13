@@ -19,8 +19,9 @@
     "test": "jest",
     "compile": "export NODE_ENV=prod && npm run clean && tsc && npm run post-build",
     "post-build": "cpx package.json built/ && cpx ormconfig.js built/ && cp -R node_modules/ built/node_modules/",
-    "dev-long-open": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({Records: [{body: \"{\\\"actionType\\\": \\\"Open\\\",\\\"direction\\\": \\\"SHORT\\\",\\\"pair\\\": \\\"AUD/USD\\\", \\\"orderDateUTC\\\":\\\"\\\", \\\"priceTarget\\\": 0.7654}\"}]})'",
-    "dev-long-close": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler({Records: [{body: \"{\\\"actionType\\\": \\\"Close\\\",\\\"direction\\\": \\\"SHORT\\\",\\\"pair\\\": \\\"AUD/USD\\\", \\\"orderDateUTC\\\":\\\"\\\", \\\"priceTarget\\\": 0.761}\"}]})'",
+    "dev-long-open": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler([{\"actionType\": \"Open\",\"direction\": \"SHORT\",\"pair\": \"AUD/USD\", \"orderDateUTC\":\"\", \"priceTarget\": 0.7654}])'",
+    "dev-long-close": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler([{\"actionType\": \"Close\",\"direction\": \"SHORT\",\"pair\": \"AUD/USD\", \"orderDateUTC\":\"\", \"priceTarget\": 0.761}])'",
+    "dev-long-open-close": "export NODE_ENV=dev && npm run compile && node -e 'require(\"./built/app\").lambdaHandler([{\"actionType\": \"Open\",\"direction\": \"SHORT\",\"pair\": \"AUD/USD\", \"orderDateUTC\":\"\", \"priceTarget\": 0.761},{\"id\": 1,\"orderDate\": \"2021-11-12 05:20:00\",\"orderDateUTC\": \"2021-11-11 18:20:00\",\"pair\": \"AUD/USD\",\"priceTarget\": 0.72932,\"direction\": \"SHORT\",\"actionType\": \"Close\"}])'",
     "clean": "rm -f -r built/"
   },
   "devDependencies": {

@@ -7,16 +7,10 @@ Globals:
     Timeout: 25
 
 Resources:
-  TradingV2Function:
+  ExecuteTrades:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: function/built/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
       MemorySize: 256
-      Events:
-        RunWhenMessageInQueue:
-          Type: SQS
-          Properties:
-            Queue: arn:aws:sqs:ap-southeast-2:023075176548:orders
-            BatchSize: 10

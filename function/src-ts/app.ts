@@ -5,17 +5,7 @@ import { OrderEvent, ActionTypes, DirectionTypes } from "./entity/OrderEvent";
 import { doOrder } from "./services/orderRouter";
 import IG from "./utils/IG";
 
-/* event
- * {
- *  Records: [
- *  {
- *   body: "{\"actionType\": \"Open\",\"direction\": \"LONG\",\"pair\": \"AUD/USD\", \"orderDateUTC\":\"\", \"priceTarget\": \"\"}",
- *  }
- * ]
- *
- */
-
-export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyResult> => {
   let connection: Connection;
   const ig = new IG();
   try {
@@ -26,12 +16,14 @@ export const lambdaHandler = async (event: any): Promise<APIGatewayProxyResult> 
       console.log("Already have connection with DB, skipping...");
     }
     //We might have multiple orders to process from the queue
-    for (let queueOrder of event.Records) {
-      //Map queue to orderEvent object
-      let queueOrderObject = JSON.parse(queueOrder.body);
-      let orderObject = mapEventObjectToOrderEvent(queueOrderObject);
-      console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
-      await doOrder(orderObject, ig);
+    for (let order of event) {
+      try {
+        let orderObject = mapEventObjectToOrderEvent(order);
+        console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
+        await doOrder(orderObject, ig);
+      } catch (e) {
+        console.log(`Could not process order ${JSON.stringify(order)}. Errored with ${e}`);
+      }
     }
     await connection.close();
     return {
