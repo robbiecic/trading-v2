@@ -13,11 +13,6 @@ Resources:
       CodeUri: function/built/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
-      Policies:
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_RODOCH_LIVE-CMviEg
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9
       MemorySize: 256
       Environment:
         Variables:
@@ -30,10 +25,6 @@ Resources:
       CodeUri: function/built/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
-      - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_RODOCH_DEMO-YEUndG
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9
       MemorySize: 128
       Environment:
         Variables:
