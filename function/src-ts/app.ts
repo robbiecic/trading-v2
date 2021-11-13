@@ -1,19 +1,22 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 import "reflect-metadata";
-import { createConnection, Connection } from "typeorm";
+import { Connection } from "typeorm";
 import { OrderEvent, ActionTypes, DirectionTypes } from "./entity/OrderEvent";
 import { doOrder } from "./services/orderRouter";
 import IG from "./utils/IG";
+import createDbConnection from "./services/dbConnection";
 
 export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyResult> => {
   let connection: Connection;
   const ig = new IG();
+  await ig.init();
   try {
     //Do Something
     try {
-      connection = await createConnection();
-    } catch {
-      console.log("Already have connection with DB, skipping...");
+      connection = await createDbConnection();
+    } catch (e) {
+      console.error("Could not create connection to DB");
+      console.error(e);
     }
     //We might have multiple orders to process from the queue
     for (let order of event) {
@@ -22,7 +25,7 @@ export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyR
         console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
         await doOrder(orderObject, ig);
       } catch (e) {
-        console.log(`Could not process order ${JSON.stringify(order)}. Errored with ${e}`);
+        console.error(`Could not process order ${JSON.stringify(order)}. Errored with ${e}`);
       }
     }
     await connection.close();

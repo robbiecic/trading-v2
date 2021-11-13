@@ -1,21 +1,9 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import config from "../config";
 import { MarketDataInterface } from "../entity/MarketData";
 import { OrderEvent, DirectionTypes } from "../entity/OrderEvent";
 import moment from "moment";
-import * as rax from "retry-axios";
-
-const instance: AxiosInstance = axios.create({
-  baseURL: config.ig.url,
-});
-
-//This will force failed axios requests to retry 3 times by default, 500ms apart
-instance.defaults.raxConfig = {
-  instance: instance,
-  retryDelay: 1500,
-};
-
-const interceptorId = rax.attach(instance);
+import AWS from "aws-sdk";
 
 interface header {
   "Content-Type": String;
@@ -122,6 +110,13 @@ export interface Positions {
   market: Market;
 }
 
+interface igConfig {
+  identifier: string;
+  password: string;
+  url: string;
+  apiKey: string;
+}
+
 export default class IG {
   igApiKey: String;
   igIdentifier: String;
@@ -130,11 +125,31 @@ export default class IG {
   headers: header;
 
   constructor() {
-    this.igApiKey = config.ig.apiKey;
-    this.igIdentifier = config.ig.identifier;
-    this.igPassword = config.ig.password;
-    this.igUrl = config.ig.url;
+    // Moved to async init() so we can fetch data from secretsManager
+  }
+
+  public async init() {
+    const igCreds = await this.getIgSecrets();
+    this.igApiKey = igCreds.apiKey;
+    this.igIdentifier = igCreds.identifier;
+    this.igPassword = igCreds.password;
+    this.igUrl = igCreds.url;
     this.setHeaders();
+  }
+
+  private async getIgSecrets(): Promise<igConfig> {
+    const region = "ap-southeast-2";
+    var client = new AWS.SecretsManager({
+      region: region,
+    });
+    const igCredentials = await client.getSecretValue({ SecretId: config.ig.igSecretName }).promise();
+    const igCredentialsJson = JSON.parse(igCredentials.SecretString);
+    return {
+      identifier: igCredentialsJson.IG_REST_IDENTIFIER,
+      password: igCredentialsJson.IG_REST_PASSWORD,
+      url: igCredentialsJson.IG_REST_URL,
+      apiKey: igCredentialsJson.IG_REST_API_KEY,
+    };
   }
 
   public async connect(): Promise<void> {
@@ -143,7 +158,7 @@ export default class IG {
     this.headers.Version = "3";
     try {
       console.log(`Connecting to IG with these headers ${JSON.stringify(this.headers)}`);
-      const { data } = await axios.post(`${config.ig.url}/session`, body, {
+      const { data } = await axios.post(`${this.igUrl}/session`, body, {
         headers: this.headers,
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
@@ -158,17 +173,17 @@ export default class IG {
   public async closeConnection() {
     let deleteHeader = this.headers;
     deleteHeader._method = "DELETE";
-    await instance.put(`/session`, null, { headers: deleteHeader });
+    await axios.put(`${this.igUrl}/session`, null, { headers: deleteHeader });
   }
 
   public async getPrices(fxPair: string, resolution: resolutions): Promise<MarketDataInterface> {
     // await this.hydrateHeaders();
     this.headers.Version = "3";
     let epic = this.getIgEpicFromPair(fxPair);
-    let url = `/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
+    let url = `${this.igUrl}/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
     let getDataResponse: AxiosResponse;
     try {
-      getDataResponse = await instance.get(url, { headers: this.headers });
+      getDataResponse = await axios.get(url, { headers: this.headers });
       let data = getDataResponse.data.prices[0];
       let priceData: MarketDataInterface = {
         pair: fxPair,
@@ -194,7 +209,7 @@ export default class IG {
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     console.log(`Headers - ${JSON.stringify(this.headers)}`);
     try {
-      let response = await instance.post("/positions/otc", orderTicket, {
+      let response = await axios.post(`${this.igUrl}/positions/otc`, orderTicket, {
         headers: this.headers,
       });
       return response.data.dealReference;
@@ -208,7 +223,7 @@ export default class IG {
     let returnPositions: Array<Positions> = [];
     this.headers.Version = "2";
     try {
-      getPositionsResponse = await instance.get(`/positions`, {
+      getPositionsResponse = await axios.get(`${this.igUrl}/positions`, {
         headers: this.headers,
       });
       getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
@@ -254,7 +269,7 @@ export default class IG {
     };
     console.log(`Closing trading with body - ${JSON.stringify(body)}`);
     try {
-      getCloseResponse = await instance.post(`/positions/otc`, body, { headers: this.headers });
+      getCloseResponse = await axios.post(`${this.igUrl}/positions/otc`, body, { headers: this.headers });
       delete this.headers._method;
       return getCloseResponse.data.dealReference;
     } catch (e) {
@@ -266,7 +281,7 @@ export default class IG {
     this.headers.Version = "1";
     let returnData: Confirms;
     try {
-      const getCloseResponse = await instance.get(`/confirms/${dealReference}`, { headers: this.headers });
+      const getCloseResponse = await axios.get(`${this.igUrl}/confirms/${dealReference}`, { headers: this.headers });
       returnData = {
         date: new Date(getCloseResponse.data.date),
         status: getCloseResponse.data.status,
