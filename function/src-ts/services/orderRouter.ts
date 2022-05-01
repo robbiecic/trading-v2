@@ -72,6 +72,7 @@ export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): De
     eventDate: confirmObject.date,
     eventAction: ActionTypes[order.actionType],
     dealID: confirmObject.dealId,
+    accountName: process.env.IG_ACCOUNT_SECRET_NAME,
     dealReference: confirmObject.dealReference,
     epic: confirmObject.epic.toString(),
     level: confirmObject.level,

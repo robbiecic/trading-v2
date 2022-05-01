@@ -17,6 +17,10 @@ export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyR
     } catch (e) {
       console.error("Could not create connection to DB");
       console.error(e);
+      return {
+        statusCode: 400,
+        body: e.toString(),
+      };
     }
     //We might have multiple orders to process from the queue
     for (let order of event) {

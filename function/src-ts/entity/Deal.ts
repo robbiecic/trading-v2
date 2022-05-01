@@ -5,6 +5,7 @@ export interface Deal {
   eventDate: Date;
   eventAction: String;
   dealID: String;
+  accountName: String;
   dealReference: String;
   epic: String;
   level: Number;
@@ -24,6 +25,8 @@ export class tradingHistory {
   eventAction: String;
   @PrimaryColumn({ type: "varchar" })
   dealID: String;
+  @PrimaryColumn({ type: "varchar" })
+  accountName: String;
   @Column({ type: "varchar" })
   dealReference: String;
   @Column({ type: "varchar" })
