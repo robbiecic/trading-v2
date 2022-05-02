@@ -11,7 +11,7 @@ export async function doOrder(order: OrderEvent, ig: IG): Promise<boolean | Erro
     await openPosition(ig, order, repository);
     return true;
   } else if (order.actionType === ActionTypes.Close) {
-    const positions = await getPositions(ig);
+    const positions = await getPositions(ig, order.pair);
     await closePosition(ig, order, repository, positions);
     return true;
   } else {
@@ -33,9 +33,9 @@ async function openPosition(ig: IG, order: OrderEvent, repository: Repository<an
   await saveData(finalOrderDetails, repository);
 }
 
-async function getPositions(ig: IG): Promise<Array<Positions>> {
+async function getPositions(ig: IG, pair: string): Promise<Array<Positions>> {
   //Get open positions from IG
-  let positions: Array<Positions> = await ig.getOpenPositions();
+  let positions: Array<Positions> = await ig.getOpenPositions(pair);
   if (positions.length === 0) {
     console.log("No positions opened");
     return [];

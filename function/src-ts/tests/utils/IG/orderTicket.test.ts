@@ -2,6 +2,7 @@ import IG, { OrderTicket, epics } from "../../../utils/IG";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
 
 const ig = new IG();
+Object.defineProperty(ig, "headers", { value: jest.fn() });
 
 const orderEvent: OrderEvent = {
   actionType: ActionTypes.Open,

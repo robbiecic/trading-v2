@@ -22,20 +22,25 @@ jest.mock("retry-axios", () => ({
 
 // Set up oAuthToken
 const ig = new IG();
+Object.defineProperty(ig, "headers", { value: jest.fn() });
 
 describe("IG positions data test suite", () => {
   afterEach(jest.clearAllMocks);
 
   it("Should get the correct position data back", async () => {
-    //Prices call
     mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: positions }));
-    const actualResponse = await ig.getOpenPositions();
+    const actualResponse = await ig.getOpenPositions("AUD/USD");
     expect(actualResponse).toEqual(expectedPositions);
   });
 
+  it("Should fail when trying to retrieve different EPIC", async () => {
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: positions }));
+    const actualResponse = await ig.getOpenPositions("EUR/USD");
+    expect(actualResponse).not.toEqual(expectedPositions);
+  });
+
   it("Should throw an error for 400", async () => {
-    //Prices call
     mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.getOpenPositions()).rejects.toThrow(Error);
+    await expect(ig.getOpenPositions("AUD/USD")).rejects.toThrow(Error);
   });
 });

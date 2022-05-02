@@ -218,38 +218,41 @@ export default class IG {
     }
   }
 
-  public async getOpenPositions(): Promise<Array<Positions>> {
+  public async getOpenPositions(pair: string): Promise<Array<Positions>> {
     let getPositionsResponse: AxiosResponse;
     let returnPositions: Array<Positions> = [];
     this.headers.Version = "2";
+    const epic = this.getIgEpicFromPair(pair);
     try {
       getPositionsResponse = await axios.get(`${this.igUrl}/positions`, {
         headers: this.headers,
       });
       getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
-        let stringEpic: string = position.market.epic;
-        returnPositions.push({
-          position: position.position,
-          market: {
-            instrumentName: position.market.instrumentName,
-            expiry: position.market.expiry,
-            epic: stringEpic as epics,
-            instrumentType: position.market.instrumentType,
-            lotSize: position.market.lotSize,
-            high: position.market.high,
-            low: position.market.low,
-            percentageChange: position.market.percentageChange,
-            netChange: position.market.netChange,
-            bid: position.market.bid,
-            offer: position.market.offer,
-            updateTime: position.market.updateTime,
-            updateTimeUTC: position.market.updateTimeUTC,
-            delayTime: position.market.delayTime,
-            streamingPricesAvailable: position.market.streamingPricesAvailable,
-            marketStatus: position.market.marketStatus,
-            scalingFactor: position.market.scalingFactor,
-          },
-        });
+        let igEpic: epics = position.market.epic as epics;
+        if (epic == igEpic) {
+          returnPositions.push({
+            position: position.position,
+            market: {
+              instrumentName: position.market.instrumentName,
+              expiry: position.market.expiry,
+              epic: igEpic,
+              instrumentType: position.market.instrumentType,
+              lotSize: position.market.lotSize,
+              high: position.market.high,
+              low: position.market.low,
+              percentageChange: position.market.percentageChange,
+              netChange: position.market.netChange,
+              bid: position.market.bid,
+              offer: position.market.offer,
+              updateTime: position.market.updateTime,
+              updateTimeUTC: position.market.updateTimeUTC,
+              delayTime: position.market.delayTime,
+              streamingPricesAvailable: position.market.streamingPricesAvailable,
+              marketStatus: position.market.marketStatus,
+              scalingFactor: position.market.scalingFactor,
+            },
+          });
+        }
       });
       return returnPositions;
     } catch (e) {
@@ -342,7 +345,7 @@ export default class IG {
     }
   }
 
-  private setHeaders() {
+  public setHeaders() {
     console.log(`Settings headers, API key is ${this.igApiKey}`);
     this.headers = {
       "Content-Type": "application/json; charset=UTF-8",

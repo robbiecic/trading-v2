@@ -22,6 +22,7 @@ jest.mock("retry-axios", () => ({
 }));
 
 const ig = new IG();
+Object.defineProperty(ig, "headers", { value: jest.fn() });
 
 describe("IG price data test suite", () => {
   afterEach(jest.clearAllMocks);

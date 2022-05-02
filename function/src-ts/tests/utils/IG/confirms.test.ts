@@ -21,6 +21,7 @@ jest.mock("retry-axios", () => ({
 }));
 
 const ig = new IG();
+Object.defineProperty(ig, "headers", { value: jest.fn() });
 
 const dealReference = "WZJ8FXKEVWF44TP";
 
