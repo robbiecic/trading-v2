@@ -157,13 +157,11 @@ export default class IG {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     this.headers.Version = "3";
     try {
-      console.log(`Connecting to IG with these headers ${JSON.stringify(this.headers)}`);
       const { data } = await axios.post(`${this.igUrl}/session`, body, {
         headers: this.headers,
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
       this.headers["IG-ACCOUNT-ID"] = data.accountId;
-      console.log(`Session headers are ${JSON.stringify(this.headers)}`);
     } catch (error) {
       console.log(`Cannot connect to IG with ${JSON.stringify(error)}`);
       throw new Error(`Cannot connect to IG with ${JSON.stringify(error)}`);
@@ -207,7 +205,6 @@ export default class IG {
     this.headers.Version = "2";
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
-    console.log(`Headers - ${JSON.stringify(this.headers)}`);
     try {
       let response = await axios.post(`${this.igUrl}/positions/otc`, orderTicket, {
         headers: this.headers,
@@ -346,7 +343,6 @@ export default class IG {
   }
 
   public setHeaders() {
-    console.log(`Settings headers, API key is ${this.igApiKey}`);
     this.headers = {
       "Content-Type": "application/json; charset=UTF-8",
       Accept: "application/json; charset=UTF-8",

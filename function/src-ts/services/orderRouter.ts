@@ -12,7 +12,7 @@ export async function doOrder(order: OrderEvent, ig: IG): Promise<boolean | Erro
     return true;
   } else if (order.actionType === ActionTypes.Close) {
     const positions = await getPositions(ig, order.pair);
-    await closePosition(ig, order, repository, positions);
+    await closePositions(ig, order, repository, positions);
     return true;
   } else {
     throw new Error(`actionType not supported with: ${order.actionType}`);
@@ -42,28 +42,34 @@ async function getPositions(ig: IG, pair: string): Promise<Array<Positions>> {
   } else return positions;
 }
 
-export async function closePosition(ig: IG, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
-  //Loop through all open positions
+export async function closePositions(ig: IG, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
+  const promises = [];
   for (let position of positions) {
-    console.log(`Position - ${JSON.stringify(position)}`);
-    let pair = ig.getPairFromEpic(position.market.epic);
-    let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
-    //Match on pair & position to close it out
-    if (pair == order.pair && order.direction == positionDirection) {
-      //Close position
-      let dealReference = await ig.closePosition(position, order);
-      console.log(`Closed position with deal reference - ${dealReference}`);
-      //Get deal reference details
-      let dealDetails = await ig.getDealDetails(dealReference);
-      console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
-      //Map details to Deal Type, IG will return it's own dataset
-      let finalOrderDetails = mapConfirmToDeal(dealDetails, order);
-      console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
-      //Log into DB
-      await saveData(finalOrderDetails, repository);
-    } else {
-      console.log("Close order did not match any open positions.");
-    }
+    promises.push(closePosition(ig, order, repository, position));
+  }
+  // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
+  await Promise.all(promises);
+}
+
+export async function closePosition(ig: IG, order: OrderEvent, repository: Repository<any>, position: Positions) {
+  console.log(`Position - ${JSON.stringify(position)}`);
+  let pair = ig.getPairFromEpic(position.market.epic);
+  let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
+  //Match on pair & position to close it out
+  if (pair == order.pair && order.direction == positionDirection) {
+    //Close position
+    let dealReference = await ig.closePosition(position, order);
+    console.log(`Closed position with deal reference - ${dealReference}`);
+    //Get deal reference details
+    let dealDetails = await ig.getDealDetails(dealReference);
+    console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
+    //Map details to Deal Type, IG will return it's own dataset
+    let finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+    console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
+    //Log into DB
+    await saveData(finalOrderDetails, repository);
+  } else {
+    console.log("Close order did not match any open positions.");
   }
 }
 
