@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 import config from "../config";
 import { MarketDataInterface } from "../entity/MarketData";
 import { OrderEvent, DirectionTypes } from "../entity/OrderEvent";
@@ -123,6 +123,7 @@ export default class IG {
   igPassword: String;
   igUrl: String;
   headers: header;
+  axios: AxiosInstance;
 
   constructor() {
     // Moved to async init() so we can fetch data from secretsManager
@@ -135,6 +136,11 @@ export default class IG {
     this.igPassword = igCreds.password;
     this.igUrl = igCreds.url;
     this.setHeaders();
+    this.axios = axios.create();
+    this.axios.interceptors.request.use(function (config) {
+      console.info(`IG API Request details - ${JSON.stringify(config)}`);
+      return config;
+    });
   }
 
   private async getIgSecrets(): Promise<igConfig> {
@@ -157,13 +163,12 @@ export default class IG {
     let body = { identifier: this.igIdentifier, password: this.igPassword };
     this.headers.Version = "3";
     try {
-      const { data } = await axios.post(`${this.igUrl}/session`, body, {
+      const { data } = await this.axios.post(`${this.igUrl}/session`, body, {
         headers: this.headers,
       });
       this.headers.Authorization = `Bearer ${data.oauthToken.access_token}`;
       this.headers["IG-ACCOUNT-ID"] = data.accountId;
     } catch (error) {
-      console.log(`Cannot connect to IG with ${JSON.stringify(error)}`);
       throw new Error(`Cannot connect to IG with ${JSON.stringify(error)}`);
     }
   }
@@ -171,7 +176,7 @@ export default class IG {
   public async closeConnection() {
     let deleteHeader = this.headers;
     deleteHeader._method = "DELETE";
-    await axios.put(`${this.igUrl}/session`, null, { headers: deleteHeader });
+    await this.axios.put(`${this.igUrl}/session`, null, { headers: deleteHeader });
   }
 
   public async getPrices(fxPair: string, resolution: resolutions): Promise<MarketDataInterface> {
@@ -181,7 +186,7 @@ export default class IG {
     let url = `${this.igUrl}/prices/${epic}?resolution=${resolutions[resolution]}&max=1`;
     let getDataResponse: AxiosResponse;
     try {
-      getDataResponse = await axios.get(url, { headers: this.headers });
+      getDataResponse = await this.axios.get(url, { headers: this.headers });
       let data = getDataResponse.data.prices[0];
       let priceData: MarketDataInterface = {
         pair: fxPair,
@@ -206,7 +211,7 @@ export default class IG {
     let orderTicket: OrderTicket = this.returnOrderTicket(order);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     try {
-      let response = await axios.post(`${this.igUrl}/positions/otc`, orderTicket, {
+      let response = await this.axios.post(`${this.igUrl}/positions/otc`, orderTicket, {
         headers: this.headers,
       });
       return response.data.dealReference;
@@ -221,7 +226,7 @@ export default class IG {
     this.headers.Version = "2";
     const epic = this.getIgEpicFromPair(pair);
     try {
-      getPositionsResponse = await axios.get(`${this.igUrl}/positions`, {
+      getPositionsResponse = await this.axios.get(`${this.igUrl}/positions`, {
         headers: this.headers,
       });
       getPositionsResponse.data.positions.forEach((position: { position: any; market: any }) => {
@@ -269,7 +274,7 @@ export default class IG {
     };
     console.log(`Closing trading with body - ${JSON.stringify(body)}`);
     try {
-      getCloseResponse = await axios.post(`${this.igUrl}/positions/otc`, body, { headers: this.headers });
+      getCloseResponse = await this.axios.post(`${this.igUrl}/positions/otc`, body, { headers: this.headers });
       delete this.headers._method;
       return getCloseResponse.data.dealReference;
     } catch (e) {
@@ -281,7 +286,7 @@ export default class IG {
     this.headers.Version = "1";
     let returnData: Confirms;
     try {
-      const getCloseResponse = await axios.get(`${this.igUrl}/confirms/${dealReference}`, { headers: this.headers });
+      const getCloseResponse = await this.axios.get(`${this.igUrl}/confirms/${dealReference}`, { headers: this.headers });
       returnData = {
         date: new Date(getCloseResponse.data.date),
         status: getCloseResponse.data.status,
