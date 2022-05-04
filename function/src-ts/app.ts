@@ -8,20 +8,17 @@ import createDbConnection from "./services/dbConnection";
 
 export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyResult> => {
   let connection: Connection;
-  const ig = new IG();
-  await ig.init();
+  let ig: IG;
+
+  // Establish dependencies, DB and IG API
   try {
-    //Do Something
-    try {
-      connection = await createDbConnection();
-    } catch (e) {
-      console.error("Could not create connection to DB");
-      console.error(e);
-      return {
-        statusCode: 400,
-        body: e.toString(),
-      };
-    }
+    ig = new IG();
+    await ig.init();
+    connection = await createDbConnection();
+  } catch (e) {
+    throw `Could not establish dependencies. Failed with with error ${e}`;
+  }
+  try {
     //We might have multiple orders to process from the queue
     for (let order of event) {
       try {
@@ -35,15 +32,11 @@ export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyR
     await connection.close();
     return {
       statusCode: 200,
-      body: "Something",
+      body: `Successfully ran trading service for ${JSON.stringify(event)}`,
     };
   } catch (e) {
-    console.log(e);
     await connection.close();
-    return {
-      statusCode: 400,
-      body: e.toString(),
-    };
+    throw `Traind service failed with error ${e}`;
   }
 };
 
