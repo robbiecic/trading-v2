@@ -19,6 +19,11 @@ Resources:
           DB_SCHEMA: main
           IG_ACCOUNT_SECRET_NAME: IG_RODOCH_LIVE
           IG_UNITS: 0.5
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_RODOCH_LIVE-CMviEg"
   ExecuteTradesDemo:
     Type: AWS::Serverless::Function
     Properties:
@@ -31,3 +36,25 @@ Resources:
           DB_SCHEMA: main
           IG_ACCOUNT_SECRET_NAME: IG_RODOCH_DEMO
           IG_UNITS: 0.5
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_RODOCH_DEMO-YEUndG"
+  ExecuteTradesRodiLive:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/built/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      MemorySize: 256
+      Environment:
+        Variables:
+          DB_SCHEMA: main
+          IG_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
+          IG_UNITS: 1
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_RODI_LIVE-cNRS9b"
