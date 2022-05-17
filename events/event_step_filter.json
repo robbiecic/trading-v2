@@ -6,7 +6,7 @@
     "pair": "AUD/USD",
     "priceTarget": 0.72932,
     "direction": "SHORT",
-    "actionType": "Close"
+    "actionType": "Open"
   },
   {
     "id": 1,
