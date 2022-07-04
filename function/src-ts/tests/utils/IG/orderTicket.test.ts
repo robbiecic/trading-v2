@@ -31,7 +31,7 @@ const expectedResponse: OrderTicket = {
 
 describe("IG test for order ticket", () => {
   it("Valid transformation on Order Ticket works", async () => {
-    let actualResponse = ig.returnOrderTicket(orderEvent);
+    let actualResponse = ig.returnOrderTicket(orderEvent, 10);
     expect(actualResponse).toEqual(expectedResponse);
   });
 });

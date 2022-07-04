@@ -208,7 +208,8 @@ export default class IG {
 
   public async placeOrder(order: OrderEvent): Promise<string> {
     this.headers.Version = "2";
-    let orderTicket: OrderTicket = this.returnOrderTicket(order);
+    const positions = await this.getOpenPositions(order.pair);
+    let orderTicket: OrderTicket = this.returnOrderTicket(order, positions.length);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     try {
       let response = await this.axios.post(`${this.igUrl}/positions/otc`, orderTicket, {
@@ -315,13 +316,14 @@ export default class IG {
     }
   }
 
-  public returnOrderTicket(order: OrderEvent): OrderTicket {
+  public returnOrderTicket(order: OrderEvent, numberOpenPositions: number): OrderTicket {
+    const tradeSize = this.getTradeSize(numberOpenPositions);
     return {
       currencyCode: this.returnCurrency(order.pair),
       direction: order.direction === DirectionTypes.LONG ? "BUY" : "SELL",
       epic: this.getIgEpicFromPair(order.pair),
       expiry: "-",
-      size: config.ig.unitsPerTrade || 1,
+      size: tradeSize || 1,
       forceOpen: true,
       orderType: "MARKET",
       level: null,
@@ -332,6 +334,16 @@ export default class IG {
       guaranteedStop: false,
       timeInForce: "FILL_OR_KILL",
     };
+  }
+
+  private getTradeSize(numPositions: number): number {
+    if (numPositions > 40) {
+      return config.ig.unitsPerTrade * 4;
+    } else if (numPositions > 30) {
+      return config.ig.unitsPerTrade * 3;
+    } else if (numPositions > 20) {
+      return config.ig.unitsPerTrade * 2;
+    } else return config.ig.unitsPerTrade;
   }
 
   private returnCurrency(pair: string): string {
