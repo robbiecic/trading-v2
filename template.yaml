@@ -52,7 +52,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           IG_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
-          IG_UNITS: 4
+          IG_UNITS: 4.5
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
