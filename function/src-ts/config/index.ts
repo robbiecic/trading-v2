@@ -1,4 +1,4 @@
-const { IG_ACCOUNT_SECRET_NAME, IG_UNITS } = process.env;
+const { IG_ACCOUNT_SECRET_NAME, IG_UNITS_AUDUSD, IG_UNITS_USDJPY, IG_UNITS_EURUSD } = process.env;
 
 interface Config {
   ig: IG;
@@ -6,13 +6,17 @@ interface Config {
 
 interface IG {
   igSecretName: string;
-  unitsPerTrade: number;
+  unitsAUDUSD: number;
+  unitsUSDJPY: number;
+  unitsEURUSD: number;
 }
 
 let config: Config = {
   ig: {
     igSecretName: IG_ACCOUNT_SECRET_NAME,
-    unitsPerTrade: Number(IG_UNITS),
+    unitsAUDUSD: Number(IG_UNITS_AUDUSD),
+    unitsUSDJPY: Number(IG_UNITS_USDJPY),
+    unitsEURUSD: Number(IG_UNITS_EURUSD),
   },
 };
 

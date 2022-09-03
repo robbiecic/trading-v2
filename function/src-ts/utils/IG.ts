@@ -321,7 +321,7 @@ export default class IG {
       direction: order.direction === DirectionTypes.LONG ? "BUY" : "SELL",
       epic: this.getIgEpicFromPair(order.pair),
       expiry: "-",
-      size: config.ig.unitsPerTrade || 1,
+      size: this.returnSizeAmount(order.pair),
       forceOpen: true,
       orderType: "MARKET",
       level: null,
@@ -332,6 +332,19 @@ export default class IG {
       guaranteedStop: false,
       timeInForce: "FILL_OR_KILL",
     };
+  }
+
+  private returnSizeAmount(pair: string): number {
+    switch (pair) {
+      case "AUD/USD":
+        return config.ig.unitsAUDUSD || 1;
+      case "EUR/USD":
+        return config.ig.unitsEURUSD || 1;
+      case "USD/JPY":
+        return config.ig.unitsUSDJPY || 1;
+      default:
+        break;
+    }
   }
 
   private returnCurrency(pair: string): string {

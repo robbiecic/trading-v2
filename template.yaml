@@ -18,7 +18,9 @@ Resources:
         Variables:
           DB_SCHEMA: main
           IG_ACCOUNT_SECRET_NAME: IG_RODOCH_LIVE
-          IG_UNITS: 0.5
+          IG_UNITS_AUDUSD: 2
+          IG_UNITS_EURUSD: 2
+          IG_UNITS_USDJPY: 2
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -30,12 +32,14 @@ Resources:
       CodeUri: function/built/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
-      MemorySize: 128
+      MemorySize: 256
       Environment:
         Variables:
           DB_SCHEMA: main
           IG_ACCOUNT_SECRET_NAME: IG_RODOCH_DEMO
-          IG_UNITS: 0.5
+          IG_UNITS_AUDUSD: 2
+          IG_UNITS_EURUSD: 2
+          IG_UNITS_USDJPY: 2
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -47,12 +51,14 @@ Resources:
       CodeUri: function/built/
       Handler: app.lambdaHandler
       Runtime: nodejs12.x
-      MemorySize: 256
+      MemorySize: 512
       Environment:
         Variables:
           DB_SCHEMA: main
           IG_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
-          IG_UNITS: 6
+          IG_UNITS_AUDUSD: 16
+          IG_UNITS_EURUSD: 2
+          IG_UNITS_USDJPY: 2
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
