@@ -64,3 +64,22 @@ Resources:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_RODI_LIVE-cNRS9b"
+  ExecuteTradesReeceLive:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/built/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      MemorySize: 256
+      Environment:
+        Variables:
+          DB_SCHEMA: main
+          IG_ACCOUNT_SECRET_NAME: IG_REECE_LIVE
+          IG_UNITS_AUDUSD: 0.5
+          IG_UNITS_EURUSD: 0.5
+          IG_UNITS_USDJPY: 0.5
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_REECE_LIVE-AhwdDo"
