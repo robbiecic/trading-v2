@@ -1,5 +1,27 @@
 # market-data
 
+An instance of this application will be spun up in accordance to the environment variables provided below. For example, if you which to setup an IG trading service, then specify the `BROKER` as `IG`, connect to the corresponding secret in AWS secretsManager and then set the values you wish to trade
+
+## Environment variables
+
+| Key                     | Value               |
+| ----------------------- | ------------------- |
+| DB_SCHEMA               | main                |
+| BROKER                  | _IG or CI_          |
+| API_ACCOUNT_SECRET_NAME | _IG_ROBERT_UK_LIVE_ |
+| UNITS_AUDUSD            | 1                   |
+| UNITS_EURUSD            | 1                   |
+| UNITS_USDJPY            | 0.5                 |
+
+## AWS SecretManager schema for _`API_ACCOUNT_SECRET_NAME`_
+
+| Key                | Value                           |
+| ------------------ | ------------------------------- |
+| IG_REST_API_KEY    | _Enter API Key_                 |
+| IG_REST_IDENTIFIER | _Enter Account Name_            |
+| IG_REST_PASSWORD   | _Enter Account Password_        |
+| IG_REST_URL        | https://api.ig.com/gateway/deal |
+
 ## Deploy the sample application
 
 The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.

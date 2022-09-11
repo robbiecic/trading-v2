@@ -1,4 +1,5 @@
-import IG, { OrderTicket, epics } from "../../../utils/IG";
+import IG, { OrderTicket } from "../../../utils/IG";
+import { igEpics } from "../../../utils/Broker";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
 
 const ig = new IG();
@@ -15,7 +16,7 @@ const orderEvent: OrderEvent = {
 const expectedResponse: OrderTicket = {
   currencyCode: "USD",
   direction: "BUY",
-  epic: epics.AUDUSD,
+  epic: igEpics.AUDUSD,
   expiry: "-",
   size: 1,
   forceOpen: true,

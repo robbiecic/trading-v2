@@ -1,4 +1,4 @@
-import { epics } from "../../../../utils/IG";
+import { igEpics } from "../../../../utils/Broker";
 export const expectedPositions = [
   {
     position: {
@@ -21,7 +21,7 @@ export const expectedPositions = [
     market: {
       instrumentName: "AUD/USD Mini",
       expiry: "-",
-      epic: epics.AUDUSD,
+      epic: igEpics.AUDUSD,
       instrumentType: "CURRENCIES",
       lotSize: 1.0,
       high: 0.7709,
@@ -59,7 +59,7 @@ export const expectedPositions = [
     market: {
       instrumentName: "AUD/USD Mini",
       expiry: "-",
-      epic: epics.AUDUSD,
+      epic: igEpics.AUDUSD,
       instrumentType: "CURRENCIES",
       lotSize: 1.0,
       high: 0.7709,
@@ -97,7 +97,7 @@ export const expectedPositions = [
     market: {
       instrumentName: "AUD/USD Mini",
       expiry: "-",
-      epic: epics.AUDUSD,
+      epic: igEpics.AUDUSD,
       instrumentType: "CURRENCIES",
       lotSize: 1.0,
       high: 0.7709,
@@ -135,7 +135,7 @@ export const expectedPositions = [
     market: {
       instrumentName: "AUD/USD Mini",
       expiry: "-",
-      epic: epics.AUDUSD,
+      epic: igEpics.AUDUSD,
       instrumentType: "CURRENCIES",
       lotSize: 1.0,
       high: 0.7709,
@@ -173,7 +173,7 @@ export const expectedPositions = [
     market: {
       instrumentName: "AUD/USD Mini",
       expiry: "-",
-      epic: epics.AUDUSD,
+      epic: igEpics.AUDUSD,
       instrumentType: "CURRENCIES",
       lotSize: 1.0,
       high: 0.7709,

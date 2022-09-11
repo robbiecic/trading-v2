@@ -17,10 +17,11 @@ Resources:
       Environment:
         Variables:
           DB_SCHEMA: main
-          IG_ACCOUNT_SECRET_NAME: IG_RODOCH_LIVE
-          IG_UNITS_AUDUSD: 1
-          IG_UNITS_EURUSD: 0.5
-          IG_UNITS_USDJPY: 0.5
+          API_ACCOUNT_SECRET_NAME: IG_RODOCH_LIVE
+          UNITS_AUDUSD: 1
+          UNITS_EURUSD: 0.5
+          UNITS_USDJPY: 0.5
+          BROKER: IG
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -36,10 +37,11 @@ Resources:
       Environment:
         Variables:
           DB_SCHEMA: main
-          IG_ACCOUNT_SECRET_NAME: IG_RODOCH_DEMO
-          IG_UNITS_AUDUSD: 1
-          IG_UNITS_EURUSD: 0.5
-          IG_UNITS_USDJPY: 0.5
+          API_ACCOUNT_SECRET_NAME: IG_RODOCH_DEMO
+          UNITS_AUDUSD: 1
+          UNITS_EURUSD: 0.5
+          UNITS_USDJPY: 0.5
+          BROKER: IG
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -55,10 +57,11 @@ Resources:
       Environment:
         Variables:
           DB_SCHEMA: main
-          IG_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
-          IG_UNITS_AUDUSD: 15
-          IG_UNITS_EURUSD: 2
-          IG_UNITS_USDJPY: 2
+          API_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
+          UNITS_AUDUSD: 15
+          UNITS_EURUSD: 2
+          UNITS_USDJPY: 2
+          BROKER: IG
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -74,10 +77,11 @@ Resources:
       Environment:
         Variables:
           DB_SCHEMA: main
-          IG_ACCOUNT_SECRET_NAME: IG_REECE_LIVE
-          IG_UNITS_AUDUSD: 0.5
-          IG_UNITS_EURUSD: 0.5
-          IG_UNITS_USDJPY: 0.5
+          API_ACCOUNT_SECRET_NAME: IG_REECE_LIVE
+          UNITS_AUDUSD: 0.5
+          UNITS_EURUSD: 0.5
+          UNITS_USDJPY: 0.5
+          BROKER: IG
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -93,10 +97,11 @@ Resources:
       Environment:
         Variables:
           DB_SCHEMA: main
-          IG_ACCOUNT_SECRET_NAME: IG_ROBERT_UK_LIVE
-          IG_UNITS_AUDUSD: 0.5
-          IG_UNITS_EURUSD: 0.5
-          IG_UNITS_USDJPY: 0.5
+          API_ACCOUNT_SECRET_NAME: IG_ROBERT_UK_LIVE
+          UNITS_AUDUSD: 0.5
+          UNITS_EURUSD: 0.5
+          UNITS_USDJPY: 0.5
+          BROKER: IG
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"

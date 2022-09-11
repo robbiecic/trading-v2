@@ -1,7 +1,8 @@
 import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
 import { Deal, tradingHistory } from "../entity/Deal";
-import IG, { Positions, Confirms } from "../utils/IG";
+import IG, { Positions, Confirms } from "../utils/Broker";
 import { getConnection, Repository, Connection } from "typeorm";
+import config from "../config";
 
 export async function doOrder(order: OrderEvent, ig: IG): Promise<boolean | Error> {
   await ig.connect(); //Will set oAuth token valid for ~60 seconds which is long enough
@@ -78,7 +79,7 @@ export function mapConfirmToDeal(confirmObject: Confirms, order: OrderEvent): De
     eventDate: confirmObject.date,
     eventAction: ActionTypes[order.actionType],
     dealID: confirmObject.dealId,
-    accountName: process.env.IG_ACCOUNT_SECRET_NAME,
+    accountName: config.apiDetails.apiSecretName,
     dealReference: confirmObject.dealReference,
     epic: confirmObject.epic.toString(),
     level: confirmObject.level,

@@ -1,23 +1,25 @@
-const { IG_ACCOUNT_SECRET_NAME, IG_UNITS_AUDUSD, IG_UNITS_USDJPY, IG_UNITS_EURUSD } = process.env;
+const { API_ACCOUNT_SECRET_NAME, UNITS_AUDUSD, UNITS_USDJPY, UNITS_EURUSD, BROKER } = process.env;
 
 interface Config {
-  ig: IG;
+  apiDetails: apiSecrets;
+  broker: string;
 }
 
-interface IG {
-  igSecretName: string;
+interface apiSecrets {
+  apiSecretName: string;
   unitsAUDUSD: number;
   unitsUSDJPY: number;
   unitsEURUSD: number;
 }
 
 let config: Config = {
-  ig: {
-    igSecretName: IG_ACCOUNT_SECRET_NAME,
-    unitsAUDUSD: Number(IG_UNITS_AUDUSD),
-    unitsUSDJPY: Number(IG_UNITS_USDJPY),
-    unitsEURUSD: Number(IG_UNITS_EURUSD),
+  apiDetails: {
+    apiSecretName: API_ACCOUNT_SECRET_NAME,
+    unitsAUDUSD: Number(UNITS_AUDUSD),
+    unitsUSDJPY: Number(UNITS_USDJPY),
+    unitsEURUSD: Number(UNITS_EURUSD),
   },
+  broker: BROKER,
 };
 
 export default config;

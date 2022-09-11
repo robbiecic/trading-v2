@@ -23,20 +23,3 @@ jest.mock("retry-axios", () => ({
 
 const ig = new IG();
 Object.defineProperty(ig, "headers", { value: jest.fn() });
-
-describe("IG price data test suite", () => {
-  afterEach(jest.clearAllMocks);
-
-  it("Should get the correct price data back", async () => {
-    //Prices call
-    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: priceData }));
-    const actualResponse = await ig.getPrices("AUD/USD", resolutions.MINUTE_10);
-    expect(actualResponse).toEqual(expectedPrices);
-  });
-
-  it("Should throw an error for 400", async () => {
-    //Prices call
-    mockedAxios.get.mockRejectedValueOnce(mockResponse.build({ status: 401, statusText: "Bad Request" }));
-    await expect(ig.getPrices("AUD/USD", resolutions.MINUTE_10)).rejects.toThrow(Error);
-  });
-});

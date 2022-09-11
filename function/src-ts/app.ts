@@ -4,16 +4,25 @@ import { Connection } from "typeorm";
 import { OrderEvent, ActionTypes, DirectionTypes } from "./entity/OrderEvent";
 import { doOrder } from "./services/orderRouter";
 import IG from "./utils/IG";
+import CI from "./utils/CI";
 import createDbConnection from "./services/dbConnection";
+import config from "./config";
 
 export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyResult> => {
   let connection: Connection;
-  let ig: IG;
-
-  // Establish dependencies, DB and IG API
+  let broker: IG | CI;
   try {
-    ig = new IG();
-    await ig.init();
+    if (config.broker == "IG") {
+      console.log("Setting up this trading instance for the IG Broker...");
+      broker = new IG();
+      await broker.init();
+    } else if (config.broker == "CI") {
+      console.log("Setting up this trading instance for the CI Broker...");
+      broker = new CI();
+      await broker.init();
+    } else {
+      throw `Broker is not set to either IG or CI, shutting down app.`;
+    }
     connection = await createDbConnection();
   } catch (e) {
     throw `Could not establish dependencies. Failed with with error ${e}`;
@@ -24,7 +33,7 @@ export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyR
       try {
         let orderObject = mapEventObjectToOrderEvent(order);
         console.log(`Order for this event is ${JSON.stringify(orderObject)}`);
-        await doOrder(orderObject, ig);
+        await doOrder(orderObject, broker);
       } catch (e) {
         console.error(`Could not process order ${JSON.stringify(order)}. Errored with ${e}`);
       }

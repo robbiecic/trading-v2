@@ -1,11 +1,11 @@
-import { Confirms, epics } from "../../../../utils/IG";
+import { Confirms, igEpics } from "../../../../utils/Broker";
 
 export const expectedConfirms: Confirms = {
   date: new Date("2021-02-27T17:23:09.869"),
   status: null as string,
   reason: "UNKNOWN",
   dealStatus: "REJECTED",
-  epic: "CS.D.AUDUSD.MINI.IP" as epics,
+  epic: "CS.D.AUDUSD.MINI.IP" as igEpics,
   expiry: null as string,
   dealReference: "WZJ8FXKEVWF44TP",
   dealId: "DIAAAAE9MJR5DA9",
