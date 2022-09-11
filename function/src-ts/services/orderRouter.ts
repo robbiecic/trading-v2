@@ -1,31 +1,31 @@
 import { OrderEvent, ActionTypes, DirectionTypes } from "../entity/OrderEvent";
 import { Deal, tradingHistory } from "../entity/Deal";
-import IG, { Positions, Confirms } from "../utils/Broker";
+import Broker, { Positions, Confirms } from "../utils/Broker";
 import { getConnection, Repository, Connection } from "typeorm";
 import config from "../config";
 
-export async function doOrder(order: OrderEvent, ig: IG): Promise<boolean | Error> {
-  await ig.connect(); //Will set oAuth token valid for ~60 seconds which is long enough
+export async function doOrder(order: OrderEvent, broker: Broker): Promise<boolean | Error> {
+  await broker.connect(); //Will set oAuth token valid for ~60 seconds which is long enough
   const connection: Connection = getConnection();
   const repository: Repository<any> = connection.getRepository(tradingHistory);
   if (order.actionType === ActionTypes.Open) {
-    await openPosition(ig, order, repository);
+    await openPosition(broker, order, repository);
     return true;
   } else if (order.actionType === ActionTypes.Close) {
-    const positions = await getPositions(ig, order.pair);
-    await closePositions(ig, order, repository, positions);
+    const positions = await getPositions(broker, order.pair);
+    await closePositions(broker, order, repository, positions);
     return true;
   } else {
     throw new Error(`actionType not supported with: ${order.actionType}`);
   }
 }
 
-async function openPosition(ig: IG, order: OrderEvent, repository: Repository<any>) {
+async function openPosition(broker: Broker, order: OrderEvent, repository: Repository<any>) {
   //Place order in IG
-  const dealReference = await ig.placeOrder(order);
+  const dealReference = await broker.placeOrder(order);
   console.log(`Open position with deal reference - ${dealReference}`);
   //Get deal reference details
-  const dealDetails = await ig.getDealDetails(dealReference);
+  const dealDetails = await broker.getDealDetails(dealReference);
   console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
   //Map details to Deal Type, IG will return it's own dataset
   const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
@@ -34,35 +34,35 @@ async function openPosition(ig: IG, order: OrderEvent, repository: Repository<an
   await saveData(finalOrderDetails, repository);
 }
 
-async function getPositions(ig: IG, pair: string): Promise<Array<Positions>> {
+async function getPositions(broker: Broker, pair: string): Promise<Array<Positions>> {
   //Get open positions from IG
-  let positions: Array<Positions> = await ig.getOpenPositions(pair);
+  let positions: Array<Positions> = await broker.getOpenPositions(pair);
   if (positions.length === 0) {
     console.log("No positions opened");
     return [];
   } else return positions;
 }
 
-export async function closePositions(ig: IG, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
+export async function closePositions(broker: Broker, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
   const promises = [];
   for (let position of positions) {
-    promises.push(closePosition(ig, order, repository, position));
+    promises.push(closePosition(broker, order, repository, position));
   }
   // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
   await Promise.all(promises);
 }
 
-export async function closePosition(ig: IG, order: OrderEvent, repository: Repository<any>, position: Positions) {
+export async function closePosition(broker: Broker, order: OrderEvent, repository: Repository<any>, position: Positions) {
   console.log(`Position - ${JSON.stringify(position)}`);
-  let pair = ig.getPairFromEpic(position.market.epic);
+  let pair = broker.getPairFromEpic(position.market.epic);
   let positionDirection = position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT;
   //Match on pair & position to close it out
   if (pair == order.pair && order.direction == positionDirection) {
     //Close position
-    let dealReference = await ig.closePosition(position, order);
+    let dealReference = await broker.closePosition(position, order);
     console.log(`Closed position with deal reference - ${dealReference}`);
     //Get deal reference details
-    let dealDetails = await ig.getDealDetails(dealReference);
+    let dealDetails = await broker.getDealDetails(dealReference);
     console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
     //Map details to Deal Type, IG will return it's own dataset
     let finalOrderDetails = mapConfirmToDeal(dealDetails, order);

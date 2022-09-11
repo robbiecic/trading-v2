@@ -13,16 +13,15 @@ export const lambdaHandler = async (event: Array<any>): Promise<APIGatewayProxyR
   let broker: IG | CI;
   try {
     if (config.broker == "IG") {
-      console.log("Setting up this trading instance for the IG Broker...");
       broker = new IG();
       await broker.init();
     } else if (config.broker == "CI") {
-      console.log("Setting up this trading instance for the CI Broker...");
       broker = new CI();
       await broker.init();
     } else {
       throw `Broker is not set to either IG or CI, shutting down app.`;
     }
+    console.log(`Setting up this trading instance for the ${config.broker} Broker.`);
     connection = await createDbConnection();
   } catch (e) {
     throw `Could not establish dependencies. Failed with with error ${e}`;
