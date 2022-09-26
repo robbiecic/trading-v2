@@ -22,6 +22,12 @@ An instance of this application will be spun up in accordance to the environment
 | IG_REST_PASSWORD   | _Enter Account Password_        |
 | IG_REST_URL        | https://api.ig.com/gateway/deal |
 
+## Broker API details
+
+- CI - http://docs.labs.gaincapital.com
+- Pre-Production: https://ciapipreprod.cityindextest9.co.uk/TradingApi/
+- Live: https://ciapi.cityindex.com/tradingapi
+
 ## Deploy the sample application
 
 The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.

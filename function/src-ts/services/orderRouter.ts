@@ -25,10 +25,10 @@ async function openPosition(broker: Broker, order: OrderEvent, repository: Repos
   const dealReference = await broker.placeOrder(order);
   console.log(`Open position with deal reference - ${dealReference}`);
   //Get deal reference details
-  const dealDetails = await broker.getDealDetails(dealReference);
+  const dealDetails: Confirms = await broker.getDealDetails(dealReference);
   console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
   //Map details to Deal Type, IG will return it's own dataset
-  const finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+  const finalOrderDetails: Deal = mapConfirmToDeal(dealDetails, order);
   console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
   //Log into DB
   await saveData(finalOrderDetails, repository);

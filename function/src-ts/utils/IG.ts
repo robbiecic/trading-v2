@@ -94,7 +94,7 @@ export default class IG extends Broker {
     let getPositionsResponse: AxiosResponse;
     let returnPositions: Array<Positions> = [];
     this.headers.Version = "2";
-    const epic = this.getIgEpicFromPair(pair);
+    const epic = this.getEpicFromPair(pair);
     try {
       getPositionsResponse = await this.axios.get(`${this.igUrl}/positions`, {
         headers: this.headers,
@@ -189,7 +189,7 @@ export default class IG extends Broker {
     return {
       currencyCode: this.returnCurrency(order.pair),
       direction: order.direction === DirectionTypes.LONG ? "BUY" : "SELL",
-      epic: this.getIgEpicFromPair(order.pair),
+      epic: this.getEpicFromPair(order.pair),
       expiry: "-",
       size: super.returnSizeAmount(order.pair),
       forceOpen: true,
@@ -226,7 +226,7 @@ export default class IG extends Broker {
     };
   }
 
-  public getIgEpicFromPair(fxPair: string): igEpics {
+  public getEpicFromPair(fxPair: string): igEpics {
     switch (fxPair) {
       case "AUD/USD": {
         return igEpics.AUDUSD;

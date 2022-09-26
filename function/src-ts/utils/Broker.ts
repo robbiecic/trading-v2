@@ -8,6 +8,7 @@ interface apiConfig {
   password: string;
   url: string;
   apiKey: string;
+  tradingAccountId?: Number;
 }
 
 export enum igEpics {
@@ -17,14 +18,14 @@ export enum igEpics {
 }
 
 export enum ciEpics {
-  AUDUSD = "CS.D.AUDUSD.MINI.IP",
-  EURUSD = "CS.D.EURUSD.MINI.IP",
-  USDJPY = "CS.D.USDJPY.MINI.IP",
+  AUDUSD = 154282,
+  EURUSD = 154290,
+  USDJPY = 154303,
 }
 
 export interface Position {
   contractSize: number;
-  createdDate: string;
+  createdDate?: string;
   createdDateUTC: string;
   dealId: string;
   dealReference: string;
@@ -33,11 +34,11 @@ export interface Position {
   limitLevel: number;
   level: number;
   currency: string;
-  controlledRisk: boolean;
-  stopLevel: number;
-  trailingStep: number;
-  trailingStopDistance: number;
-  limitedRiskPremium: number;
+  controlledRisk?: boolean;
+  stopLevel?: number;
+  trailingStep?: number;
+  trailingStopDistance?: number;
+  limitedRiskPremium?: number;
 }
 
 interface Market {
@@ -71,19 +72,19 @@ export interface Confirms {
   reason: string;
   dealStatus: string;
   epic: igEpics | ciEpics;
-  expiry: string;
+  expiry?: string;
   dealReference: string;
   dealId: string;
-  affectedDeals: Array<any>;
+  affectedDeals?: Array<any>;
   level: number;
   size: number;
   direction: string;
-  stopLevel: number;
-  limitLevel: number;
-  stopDistance: number;
-  limitDistance: number;
-  guaranteedStop: boolean;
-  trailingStop: boolean;
+  stopLevel?: number;
+  limitLevel?: number;
+  stopDistance?: number;
+  limitDistance?: number;
+  guaranteedStop?: boolean;
+  trailingStop?: boolean;
   profit: number;
   profitCurrency: string;
 }
@@ -125,6 +126,10 @@ export default class Broker {
       default:
         break;
     }
+  }
+
+  public getEpicFromPair(pair: string): igEpics | ciEpics {
+    return null;
   }
 
   public getPairFromEpic(epic: igEpics | ciEpics): string {
