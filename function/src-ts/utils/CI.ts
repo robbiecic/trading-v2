@@ -278,7 +278,7 @@ export default class CI extends Broker {
       AllocationProfileId: null,
       OrderReference: null,
       Source: null,
-      PriceTolerance: null,
+      PriceTolerance: 1000, // Market order
     };
   }
 
