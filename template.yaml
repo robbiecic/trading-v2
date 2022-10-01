@@ -22,6 +22,9 @@ Resources:
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -42,6 +45,9 @@ Resources:
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -62,6 +68,9 @@ Resources:
           UNITS_EURUSD: 2
           UNITS_USDJPY: 2
           BROKER: IG
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -82,6 +91,9 @@ Resources:
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -102,6 +114,9 @@ Resources:
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
@@ -122,6 +137,9 @@ Resources:
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: CI
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"

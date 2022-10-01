@@ -1,8 +1,11 @@
-const { API_ACCOUNT_SECRET_NAME, UNITS_AUDUSD, UNITS_USDJPY, UNITS_EURUSD, BROKER } = process.env;
+const { API_ACCOUNT_SECRET_NAME, UNITS_AUDUSD, UNITS_USDJPY, UNITS_EURUSD, BROKER, AUDUSD_ENABLED, EURUSD_ENABLED, USDJPY_ENABLED } = process.env;
 
 interface Config {
   apiDetails: apiSecrets;
   broker: string;
+  audusdEnabled: boolean;
+  eurusdEnabled: boolean;
+  usdjpyEnabled: boolean;
 }
 
 interface apiSecrets {
@@ -20,6 +23,9 @@ let config: Config = {
     unitsEURUSD: Number(UNITS_EURUSD),
   },
   broker: BROKER,
+  audusdEnabled: AUDUSD_ENABLED == "TRUE",
+  eurusdEnabled: EURUSD_ENABLED == "TRUE",
+  usdjpyEnabled: USDJPY_ENABLED == "TRUE",
 };
 
 export default config;
