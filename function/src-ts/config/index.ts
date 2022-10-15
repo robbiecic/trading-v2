@@ -23,9 +23,9 @@ let config: Config = {
     unitsEURUSD: Number(UNITS_EURUSD),
   },
   broker: BROKER,
-  audusdEnabled: AUDUSD_ENABLED == "TRUE",
-  eurusdEnabled: EURUSD_ENABLED == "TRUE",
-  usdjpyEnabled: USDJPY_ENABLED == "TRUE",
+  audusdEnabled: AUDUSD_ENABLED.toUpperCase() == "TRUE",
+  eurusdEnabled: EURUSD_ENABLED.toUpperCase() == "TRUE",
+  usdjpyEnabled: USDJPY_ENABLED.toUpperCase() == "TRUE",
 };
 
 export default config;
