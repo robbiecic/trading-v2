@@ -64,7 +64,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
-          UNITS_AUDUSD: 16
+          UNITS_AUDUSD: 18
           UNITS_EURUSD: 2
           UNITS_USDJPY: 2
           BROKER: IG
@@ -145,3 +145,26 @@ Resources:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:CI_RODI_DEMO-jGJlf4"
+  ExecuteTradesRodiCIProd:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/built/
+      Handler: app.lambdaHandler
+      Runtime: nodejs12.x
+      MemorySize: 256
+      Environment:
+        Variables:
+          DB_SCHEMA: main
+          API_ACCOUNT_SECRET_NAME: CI_RODI_PROD
+          UNITS_AUDUSD: 3
+          UNITS_EURUSD: 1
+          UNITS_USDJPY: 1
+          BROKER: CI
+          AUDUSD_ENABLED: TRUE
+          EURUSD_ENABLED: FALSE
+          USDJPY_ENABLED: FALSE
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:CI_RODI_PROD-A5M3ak"
