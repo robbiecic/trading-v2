@@ -18,7 +18,7 @@ export enum igEpics {
 }
 
 export enum ciEpics {
-  AUDUSD = 154282,
+  AUDUSD = 400494179,
   EURUSD = 154290,
   USDJPY = 154303,
 }

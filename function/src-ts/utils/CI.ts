@@ -265,7 +265,7 @@ export default class CI extends Broker {
       Currency: "USD",
       AutoRollover: false,
       Direction: order.direction == DirectionTypes.LONG ? "buy" : "sell",
-      Quantity: super.returnSizeAmount(order.pair),
+      Quantity: super.returnSizeAmount(order.pair) * 10000, // CI trades in who units not fractions, so need to multiple by 10k.
       QuoteId: null,
       PositionMethodId: 2, // 1 == LongOrShortOnly, 2 == LongAndShort.
       BidPrice: priceData.bid,
