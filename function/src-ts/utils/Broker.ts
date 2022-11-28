@@ -107,6 +107,8 @@ export default class Broker {
     });
     const credentials = await client.getSecretValue({ SecretId: config.apiDetails.apiSecretName }).promise();
     const credentialsJson = JSON.parse(credentials.SecretString);
+    console.info(`Running this trading instance on environment ${credentialsJson.IG_REST_URL}`);
+    console.info(`Running this trading instance on account ${credentialsJson.IG_REST_IDENTIFIER}`);
     return {
       identifier: credentialsJson.IG_REST_IDENTIFIER,
       password: credentialsJson.IG_REST_PASSWORD,
@@ -115,14 +117,16 @@ export default class Broker {
     };
   }
 
-  protected returnSizeAmount(pair: string): number {
+  protected returnSizeAmount(pair: string, numberOpenPositions: number): number {
+    let multipler = numberOpenPositions > 45 ? 2 : 1;
+
     switch (pair) {
       case "AUD/USD":
-        return config.apiDetails.unitsAUDUSD || 1;
+        return config.apiDetails.unitsAUDUSD * multipler || 1;
       case "EUR/USD":
-        return config.apiDetails.unitsEURUSD || 1;
+        return config.apiDetails.unitsEURUSD * multipler || 1;
       case "USD/JPY":
-        return config.apiDetails.unitsUSDJPY || 1;
+        return config.apiDetails.unitsUSDJPY * multipler || 1;
       default:
         break;
     }
@@ -156,7 +160,7 @@ export default class Broker {
     return [];
   }
 
-  public returnOrderTicket(order: OrderEvent): any {
+  public returnOrderTicket(order: OrderEvent, numberOpenPositions: number): any {
     // The order ticket return type depends on the broker
   }
 

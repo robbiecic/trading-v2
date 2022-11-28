@@ -210,7 +210,12 @@ export default class CI extends Broker {
   }
 
   public async placeOrder(order: OrderEvent): Promise<string> {
-    let orderTicket: OrderTicket = await this.returnOrderTicket(order);
+    const positions = await this.getOpenPositions(order.pair);
+    // Count the number of open long or short directions only
+    const igDirection = order.direction == DirectionTypes.SHORT ? "SELL" : "BUY";
+    const positionsOrderType = positions.filter((a) => a.position.direction == igDirection);
+    console.log(`positionsOrderType = ${positionsOrderType.length}`);
+    let orderTicket: OrderTicket = await this.returnOrderTicket(order, positionsOrderType.length);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     try {
       let response = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, {
@@ -258,14 +263,14 @@ export default class CI extends Broker {
     }
   }
 
-  public async returnOrderTicket(order: OrderEvent): Promise<OrderTicket> {
+  public async returnOrderTicket(order: OrderEvent, numberOpenPositions: number): Promise<OrderTicket> {
     const priceData = await this.getLatestPriceData(order);
     return {
       MarketId: this.getEpicFromPair(order.pair),
       Currency: "USD",
       AutoRollover: false,
       Direction: order.direction == DirectionTypes.LONG ? "buy" : "sell",
-      Quantity: super.returnSizeAmount(order.pair) * 10000, // CI trades in who units not fractions, so need to multiple by 10k.
+      Quantity: super.returnSizeAmount(order.pair, numberOpenPositions) * 10000, // CI trades in who units not fractions, so need to multiple by 10k.
       QuoteId: null,
       PositionMethodId: 2, // 1 == LongOrShortOnly, 2 == LongAndShort.
       BidPrice: priceData.bid,
@@ -338,8 +343,9 @@ export default class CI extends Broker {
 
   public async closePosition(position: Positions, order: OrderEvent): Promise<string> {
     let getCloseResponse: AxiosResponse;
-    let orderTicket = await this.returnOrderTicket(order);
+    let orderTicket = await this.returnOrderTicket(order, 1); // The 1 is redundant as the quantity is changed below
     orderTicket.Close = [position.position.dealId];
+    orderTicket.Quantity = position.position.size;
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);

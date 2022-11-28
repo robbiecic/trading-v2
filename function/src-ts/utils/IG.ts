@@ -78,7 +78,11 @@ export default class IG extends Broker {
 
   public async placeOrder(order: OrderEvent): Promise<string> {
     this.headers.Version = "2";
-    let orderTicket: OrderTicket = this.returnOrderTicket(order);
+    // Count the number of open long or short directions only
+    const positions = await this.getOpenPositions(order.pair);
+    const igDirection = order.direction == DirectionTypes.SHORT ? "SELL" : "BUY";
+    const positionsOrderType = positions.filter((a) => a.position.direction == igDirection);
+    let orderTicket: OrderTicket = this.returnOrderTicket(order, positionsOrderType.length);
     console.log("Order ticket - ", JSON.stringify(orderTicket));
     try {
       let response = await this.axios.post(`${this.igUrl}/positions/otc`, orderTicket, {
@@ -185,13 +189,13 @@ export default class IG extends Broker {
     }
   }
 
-  public returnOrderTicket(order: OrderEvent): OrderTicket {
+  public returnOrderTicket(order: OrderEvent, numberOpenPositions: number): OrderTicket {
     return {
       currencyCode: this.returnCurrency(order.pair),
       direction: order.direction === DirectionTypes.LONG ? "BUY" : "SELL",
       epic: this.getEpicFromPair(order.pair),
       expiry: "-",
-      size: super.returnSizeAmount(order.pair),
+      size: super.returnSizeAmount(order.pair, numberOpenPositions),
       forceOpen: true,
       orderType: "MARKET",
       level: null,
