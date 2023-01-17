@@ -99,7 +99,7 @@ Resources:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_REECE_LIVE-AhwdDo"
-  ExecuteTradesRobertUKLive:
+  ExecuteTradesRobertAULive:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: function/built/
@@ -109,8 +109,8 @@ Resources:
       Environment:
         Variables:
           DB_SCHEMA: main
-          API_ACCOUNT_SECRET_NAME: IG_ROBERT_UK_LIVE
-          UNITS_AUDUSD: 0.5
+          API_ACCOUNT_SECRET_NAME: IG_ROB_LIVE
+          UNITS_AUDUSD: 2.5
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
@@ -121,7 +121,7 @@ Resources:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:trading-db-secret-OyFSz9"
         - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_ROBERT_UK_LIVE-Yrl8Is"
+            SecretArn: "arn:aws:secretsmanager:ap-southeast-2:023075176548:secret:IG_ROB_LIVE-ZPO2Cj"
   ExecuteTradesRodiCIDemo:
     Type: AWS::Serverless::Function
     Properties:
@@ -156,7 +156,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: CI_RODI_PROD
-          UNITS_AUDUSD: 3
+          UNITS_AUDUSD: 10
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: CI
