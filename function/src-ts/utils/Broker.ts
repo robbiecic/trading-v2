@@ -91,6 +91,7 @@ export interface Confirms {
 
 export default class Broker {
   axios: AxiosInstance;
+  name: string;
 
   constructor() {
     this.axios = axios.create();
@@ -105,6 +106,7 @@ export default class Broker {
     var client = new AWS.SecretsManager({
       region: region,
     });
+    console.log(`Fetching credentials for ${config.apiDetails.apiSecretName}`);
     const credentials = await client.getSecretValue({ SecretId: config.apiDetails.apiSecretName }).promise();
     const credentialsJson = JSON.parse(credentials.SecretString);
     console.info(`Running this trading instance on environment ${credentialsJson.IG_REST_URL}`);
@@ -153,6 +155,10 @@ export default class Broker {
   }
 
   public async closePosition(position: Positions, order: OrderEvent): Promise<string> {
+    return "orderid";
+  }
+
+  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string> {
     return "orderid";
   }
 

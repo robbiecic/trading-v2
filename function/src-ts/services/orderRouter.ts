@@ -44,12 +44,39 @@ async function getPositions(broker: Broker, pair: string): Promise<Array<Positio
 }
 
 export async function closePositions(broker: Broker, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
-  const promises = [];
-  for (let position of positions) {
-    promises.push(closePosition(broker, order, repository, position));
+  if (broker.name == "CI") {
+    await closeCIPositionsInBulk(broker, order, repository, positions);
   }
-  // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
-  await Promise.all(promises);
+  else {
+    const promises = [];
+    for (let position of positions) {
+      promises.push(closePosition(broker, order, repository, position));
+    }
+    // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
+    await Promise.all(promises);
+  }
+}
+
+async function closeCIPositionsInBulk(broker: Broker, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
+  // Filter only positions that we want to close
+  let positionsForOrderPairAndDirection: Array<Positions> = positions.filter(
+    (position) => broker.getPairFromEpic(position.market.epic) == order.pair
+      && order.direction == (position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT));
+
+  if (positionsForOrderPairAndDirection.length > 0) {
+    let dealReference = await broker.closeMultiplePositions(positionsForOrderPairAndDirection, order);
+    console.log(`Closed position with deal reference - ${dealReference}`);
+    //Get deal reference details
+    let dealDetails = await broker.getDealDetails(dealReference);
+    console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
+    //Map details to Deal Type, IG will return it's own dataset
+    let finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+    console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
+    //Log into DB
+    await saveData(finalOrderDetails, repository);
+  } else {
+    console.log("Close order did not match any open positions.");
+  }
 }
 
 export async function closePosition(broker: Broker, order: OrderEvent, repository: Repository<any>, position: Positions) {
