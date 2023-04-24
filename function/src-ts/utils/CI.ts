@@ -125,6 +125,7 @@ export default class CI extends Broker {
 
   public async init(): Promise<void> {
     const ciCreds = await super.getApiSecrets();
+    this.name = "CI";
     this.ciApiKey = ciCreds.apiKey;
     this.ciIdentifier = ciCreds.identifier;
     this.ciPassword = ciCreds.password;
@@ -346,6 +347,25 @@ export default class CI extends Broker {
     let orderTicket = await this.returnOrderTicket(order, 1); // The 1 is redundant as the quantity is changed below
     orderTicket.Close = [position.position.dealId];
     orderTicket.Quantity = position.position.size;
+    // Inverse the direction to close the trade
+    orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
+    console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);
+    try {
+      getCloseResponse = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, { headers: this.headers });
+      this.appendOrderToConfirmsArray(order, getCloseResponse.data.Orders[0]);
+      return getCloseResponse.data.OrderId;
+    } catch (e) {
+      throw new Error(`Could not close position: ${JSON.stringify(e)}`);
+    }
+  }
+
+  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string> {
+    let getCloseResponse: AxiosResponse;
+    let orderTicket = await this.returnOrderTicket(order, 1); // The 1 is redundant as the quantity is changed below
+    // List or open contract we want to close
+    orderTicket.Close = positions.map(position => position.position.dealId);
+    // Override quantity with the total position size
+    orderTicket.Quantity = positions.map(position => position.position.contractSize).reduce((a, b) => a+b);
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);

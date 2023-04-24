@@ -48,6 +48,7 @@ export default class IG extends Broker {
 
   public async init(): Promise<void> {
     const igCreds = await super.getApiSecrets();
+    this.name = "IG";
     this.igApiKey = igCreds.apiKey;
     this.igIdentifier = igCreds.identifier;
     this.igPassword = igCreds.password;
