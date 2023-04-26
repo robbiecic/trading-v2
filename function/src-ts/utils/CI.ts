@@ -371,6 +371,7 @@ export default class CI extends Broker {
     console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);
     try {
       getCloseResponse = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, { headers: this.headers });
+      console.info(`CI API responce to Close order - ${JSON.stringify(getCloseResponse.data)}`);
       this.appendOrderToConfirmsArray(order, getCloseResponse.data.Orders[0]);
       return getCloseResponse.data.OrderId;
     } catch (e) {
