@@ -93,7 +93,7 @@ interface OrderTicket {
   Currency: string; // Currency to place order in.
   AutoRollover: false; // Flag to indicate whether the trade will automatically roll into the next market interval when the current market interval expires. Only applies to markets where the underlying is a futures contract.
   Direction: string; //Buy or Sell
-  Quantity: Number; // Size of the order/trade.
+  Quantity: number; // Size of the order/trade.
   QuoteId?: Number; // The unique quote identifier.
   PositionMethodId?: 1 | 2; // Indicates the position of the trade. 1 == LongOrShortOnly, 2 == LongAndShort.
   BidPrice: Number; // Market prices are quoted as a pair (buy/sell or bid/offer), the BidPrice is the lower value of the pair.
@@ -359,15 +359,29 @@ export default class CI extends Broker {
     }
   }
 
-  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string> {
-    let getCloseResponse: AxiosResponse;
-    let orderTicket = await this.returnOrderTicket(order, 1); // The 1 is redundant as the quantity is changed below
-    // List or open contract we want to close
+  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
+    // The 1 is redundant as the quantity is changed below
+    let orderTicket = await this.returnOrderTicket(order, 1);
+    // List all open contracts we want to close
     orderTicket.Close = positions.map(position => position.position.dealId);
-    // Override quantity with the total position size
-    orderTicket.Quantity = positions.map(position => position.position.contractSize).reduce((a, b) => a+b);
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
+    // Override quantity with the TOTAL position size
+    orderTicket.Quantity = positions.map(position => position.position.contractSize).reduce((a, b) => a + b);
+    // Return order blobs broken down by 5,000,000 units each
+    const orderBlobs = this.returnOrderBlobs(orderTicket.Quantity, 5000000);
+    // Promise All orders 
+    const promises = [];
+    for (let orderBlob of orderBlobs) {
+      orderTicket.Quantity = orderBlob;
+      promises.push(this.closeOrderRequest(orderTicket, order));
+    }
+    // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
+    return await Promise.all(promises);
+  }
+
+  private async closeOrderRequest(orderTicket: OrderTicket, order: OrderEvent): Promise<string> {
+    let getCloseResponse: AxiosResponse;
     console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);
     try {
       getCloseResponse = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, { headers: this.headers });
@@ -377,6 +391,17 @@ export default class CI extends Broker {
     } catch (e) {
       throw new Error(`Could not close position: ${JSON.stringify(e)}`);
     }
+  }
+
+  private returnOrderBlobs(originalQuantity: number, blobSize: number): Array<number> {
+    let runningQuantity = originalQuantity;
+    let returnArray: Array<number> = [];
+    const numOrders = Math.ceil(originalQuantity / blobSize);
+    for (let order = 0; order < numOrders; order++) {
+      returnArray.push(runningQuantity);
+      runningQuantity = runningQuantity - blobSize;
+    }
+    return returnArray;
   }
 
   public async getDealDetails(dealReference: string): Promise<Confirms> {
