@@ -360,6 +360,7 @@ export default class CI extends Broker {
   }
 
   public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
+    const CIOrderSizeLimit = 5000000;
     const promises = [];
     // The 1 is redundant as the quantity is changed below
     let orderTicket = await this.returnOrderTicket(order, 1);
@@ -367,7 +368,7 @@ export default class CI extends Broker {
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     // We have an array of positions, we want to split this array by Quantity/Blobsize
     const totalQuantity = positions.map(position => position.position.contractSize).reduce((a, b) => a + b);
-    const chunkSize = Math.ceil(totalQuantity / 50000);
+    const chunkSize = Math.ceil(totalQuantity / CIOrderSizeLimit);
     const positionsIntoChunks = this.chunkIntoN(positions, chunkSize);
     console.info(`Our total position size is ${totalQuantity}, and we will divide into ${chunkSize} chunks`);
     
