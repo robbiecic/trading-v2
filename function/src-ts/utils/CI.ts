@@ -360,24 +360,36 @@ export default class CI extends Broker {
   }
 
   public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
+    const promises = [];
     // The 1 is redundant as the quantity is changed below
     let orderTicket = await this.returnOrderTicket(order, 1);
-    // List all open contracts we want to close
-    orderTicket.Close = positions.map(position => position.position.dealId);
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
-    // Override quantity with the TOTAL position size
-    orderTicket.Quantity = positions.map(position => position.position.contractSize).reduce((a, b) => a + b);
-    // Return order blobs broken down by 5,000,000 units each
-    const orderBlobs = this.returnOrderBlobs(orderTicket.Quantity, 5000000);
-    // Promise All orders 
-    const promises = [];
-    for (let orderBlob of orderBlobs) {
-      orderTicket.Quantity = orderBlob;
+    // We have an array of positions, we want to split this array by Quantity/Blobsize
+    const totalQuantity = positions.map(position => position.position.contractSize).reduce((a, b) => a + b);
+    const chunkSize = Math.ceil(totalQuantity / 50000);
+    const positionsIntoChunks = this.chunkIntoN(positions, chunkSize);
+    console.info(`Our total position size is ${totalQuantity}, and we will divide into ${chunkSize} chunks`);
+    
+    for (let i = 0; i < positionsIntoChunks.length; i++) {
+      let posiitonChunk = positionsIntoChunks[i];
+      // List all open contracts we want to close
+      orderTicket.Close = posiitonChunk.map(position => position.position.dealId);
+      // Override quantity with the TOTAL position size
+      orderTicket.Quantity = posiitonChunk.map(position => position.position.contractSize).reduce((a, b) => a + b);
+      // Promise All orders 
       promises.push(this.closeOrderRequest(orderTicket, order));
     }
+
     // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
     return await Promise.all(promises);
+  }
+
+  private chunkIntoN(array: Array<Positions>, chunks: number): Array<Array<Positions>> {
+    const size = Math.ceil(array.length / chunks);
+    return Array.from({ length: chunks }, (v, i) =>
+    array.slice(i * size, i * size + size)
+    );
   }
 
   private async closeOrderRequest(orderTicket: OrderTicket, order: OrderEvent): Promise<string> {
@@ -391,17 +403,6 @@ export default class CI extends Broker {
     } catch (e) {
       throw new Error(`Could not close position: ${JSON.stringify(e)}`);
     }
-  }
-
-  private returnOrderBlobs(originalQuantity: number, blobSize: number): Array<number> {
-    let runningQuantity = originalQuantity;
-    let returnArray: Array<number> = [];
-    const numOrders = Math.ceil(originalQuantity / blobSize);
-    for (let order = 0; order < numOrders; order++) {
-      returnArray.push(runningQuantity);
-      runningQuantity = runningQuantity - blobSize;
-    }
-    return returnArray;
   }
 
   public async getDealDetails(dealReference: string): Promise<Confirms> {
