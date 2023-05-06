@@ -12,6 +12,10 @@ jest.mock("axios", () => ({
     baseURL: "test",
     raxConfig: {},
   },
+  interceptors: {
+    request: { use: jest.fn(), eject: jest.fn() },
+    response: { use: jest.fn(), eject: jest.fn() },
+  },
   create: () => axios,
   get: jest.fn(() => Promise),
   post: jest.fn(() => Promise),
