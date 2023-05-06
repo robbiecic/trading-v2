@@ -37,7 +37,7 @@ interface ApiOrderResponseDTO {
 }
 
 interface ApiTradeHistoryDTO {
-  OrderId: string;
+  OrderId: number;
   OpeningOrderIds: Array<number>; // The orders that are being closed / part closed by this order.
   MarketId: number;
   MarketName: string;
@@ -57,15 +57,15 @@ interface ApiTradeHistoryDTO {
   Source: string;
   IsCloseBy: boolean;
   Liquidation: boolean;
-  FixedInitialMargin: number;
+  FixedInitalMargin: number;
 }
 
-interface ListOpenPositionsResponseDTO {
+export interface ListOpenPositionsResponseDTO {
   OpenPositions: Array<ApiOpenPositionDTO>;
 }
 
-interface ApiOpenPositionDTO {
-  OrderId: string; // The order's unique identifier.
+export interface ApiOpenPositionDTO {
+  OrderId: number; // The order's unique identifier.
   AutoRollover: Boolean; // Flag to indicate whether the trade will automatically roll into the next market interval when the current market interval expires. Only applies to markets where the underlying is a futures contract.
   MarketId: Number; // The market's unique identifier.
   MarketName: string; // The market's name.
@@ -74,18 +74,19 @@ interface ApiOpenPositionDTO {
   Price?: number; // The price / rate that the trade was opened at.
   TradingAccountId: Number; // The ID of the trading account associated with the trade/order request.
   Currency: string; // Currency to place order in.
-  Status: string; // The order status. The table of lookup codes can be found at Lookup Values.
+  Status: number; // The order status. The table of lookup codes can be found at Lookup Values.
   StopOrder?: any; // The stop order attached to this order.
   LimitOrder?: any; // The limit order attached to this order.
   LastChangedDateTimeUTC: string; // Represents the date and time when the trade/order was last edited in UNIX time format. Note: does not include things such as the current market price.
   CreatedDateTimeUTC: string; // The date and time that the order was created in UNIX time format. This can be the time an active order was created, which then become an open position after a fill. Alternatively, this can be the time a market order was executed.
-  ExecutedDateTimeUTC: Date; // The date time that the order executed initially in UNIX time format. This does not include any partial closures. This can be the time an active order was created, which then become an open position after a fill. Alternatively, this can be the time a market order was executed.
+  ExecutedDateTimeUTC: string; // The date time that the order executed initially in UNIX time format. This does not include any partial closures. This can be the time an active order was created, which then become an open position after a fill. Alternatively, this can be the time a market order was executed.
   TradeReference: string; // An alternative trade reference.
   ManagedTrades?: any; // The list of constituent trades for Trading Advisor managed positions (if applicable).
   AllocationProfileId?: Number; // The identifier of the allocation profile that was used to create the open position, where applicable. (Used by Trade Advisor accounts).
   AllocationProfileName?: string; // The name of the allocation profile that was used to create the open position, where applicable. (Used by Trade Advisor accounts).
   AssociatedOrders?: any; // The associated orders linked to this open position. An associated order is linked to a net position rather than to specific individual trades.
-  FixedInitialMargin?: Number; // The fixed amount of trading resources used to place the trade.
+  FixedInitalMargin?: Number; // The fixed amount of trading resources used to place the trade.
+  PositionMethodId?: Number;
 }
 
 export interface OrderTicket {
@@ -307,7 +308,7 @@ export default class CI extends Broker {
               contractSize: order.Quantity,
               createdDate: order.CreatedDateTimeUTC,
               createdDateUTC: order.CreatedDateTimeUTC,
-              dealId: order.OrderId,
+              dealId: String(order.OrderId),
               size: order.Quantity,
               direction: order.Direction == "buy" ? "BUY" : "SELL",
               limitLevel: order.Price,

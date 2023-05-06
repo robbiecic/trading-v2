@@ -3,7 +3,6 @@ import { ciEpics } from "../../../utils/Broker";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
 import { mocked } from "ts-jest/utils";
 import axios from "axios";
-import { mockResponse } from "./factories";
 
 const ci = new CI();
 Object.defineProperty(ci, "headers", { value: jest.fn() });
