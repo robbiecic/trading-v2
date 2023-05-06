@@ -360,10 +360,13 @@ export default class CI extends Broker {
   }
 
   public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
-    const CIOrderSizeLimit = 5000000;
-    const promises = [];
-    // The 1 is redundant as the quantity is changed below
     let orderTicket = await this.returnOrderTicket(order, 1);
+    const closePositionsIntoChunks = this.returnCloseOrderChunks(orderTicket, positions, 5000000);
+    const promises = this.returnCloseOrderChunksAPIOrderRequests(orderTicket, closePositionsIntoChunks, order);
+    return await Promise.all(promises);
+  }
+
+  public returnCloseOrderChunks(orderTicket: OrderTicket, positions: Array<Positions>, CIOrderSizeLimit: number): Array<Array<Positions>> {
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     // We have an array of positions, we want to split this array by Quantity/Blobsize
@@ -371,7 +374,11 @@ export default class CI extends Broker {
     const chunkSize = Math.ceil(totalQuantity / CIOrderSizeLimit);
     const positionsIntoChunks = this.chunkIntoN(positions, chunkSize);
     console.info(`Our total position size is ${totalQuantity}, and we will divide into ${chunkSize} chunks`);
-    
+    return positionsIntoChunks;
+  }
+
+  public returnCloseOrderChunksAPIOrderRequests(orderTicket: OrderTicket, positionsIntoChunks: Array<Array<Positions>>, order: OrderEvent): Promise<string>[] {
+    const promises = [];
     for (let i = 0; i < positionsIntoChunks.length; i++) {
       let posiitonChunk = positionsIntoChunks[i];
       // List all open contracts we want to close
@@ -381,15 +388,13 @@ export default class CI extends Broker {
       // Promise All orders 
       promises.push(this.closeOrderRequest(orderTicket, order));
     }
-
-    // Execute all close positions at the same time, async. Await promises back from all. Risk of throttling here.
-    return await Promise.all(promises);
+    return promises;
   }
 
   private chunkIntoN(array: Array<Positions>, chunks: number): Array<Array<Positions>> {
     const size = Math.ceil(array.length / chunks);
     return Array.from({ length: chunks }, (v, i) =>
-    array.slice(i * size, i * size + size)
+      array.slice(i * size, i * size + size)
     );
   }
 
