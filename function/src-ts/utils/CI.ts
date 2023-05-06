@@ -88,7 +88,7 @@ interface ApiOpenPositionDTO {
   FixedInitialMargin?: Number; // The fixed amount of trading resources used to place the trade.
 }
 
-interface OrderTicket {
+export interface OrderTicket {
   MarketId: ciEpics; // The unique identifier for a market.
   Currency: string; // Currency to place order in.
   AutoRollover: false; // Flag to indicate whether the trade will automatically roll into the next market interval when the current market interval expires. Only applies to markets where the underlying is a futures contract.
