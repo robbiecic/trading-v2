@@ -5,7 +5,6 @@ import { positions } from "../CI/api-responses/positions";
 import { positions as expectedPositions } from "../CI/expected-results/positions";
 import { mockResponse } from "./factories";
 
-
 const ci = new CI();
 Object.defineProperty(ci, "headers", { value: jest.fn() });
 Object.defineProperty(ci, "tradingAccountId", { value: 123456 });
@@ -29,12 +28,10 @@ jest.mock("retry-axios", () => ({
   attach: () => 12345,
 }));
 
-
-  describe("CI test for closing multiple orders", () => {
-
-    it("Test - returnCloseOrderChunks()", async () => {
-        mockedAxios.get.mockResolvedValueOnce(mockResponse.build({data: positions}));
-        const closeMultiplePositionsResponse = await ci.getOpenPositions("AUD/USD");
-        expect(closeMultiplePositionsResponse).toEqual(expectedPositions);
-    });
+describe("CI test for closing multiple orders", () => {
+  it("Test - returnCloseOrderChunks()", async () => {
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({ data: positions }));
+    const closeMultiplePositionsResponse = await ci.getOpenPositions("AUD/USD");
+    expect(closeMultiplePositionsResponse).toEqual(expectedPositions);
   });
+});

@@ -1,10 +1,6 @@
 import CI, { OrderTicket } from "../../../utils/CI";
 import { ciEpics } from "../../../utils/Broker";
-import {
-  OrderEvent,
-  ActionTypes,
-  DirectionTypes,
-} from "../../../entity/OrderEvent";
+import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
 import { mocked } from "ts-jest/utils";
 import axios from "axios";
 import { positions } from "../CI/expected-results/positions";
@@ -64,30 +60,18 @@ const orderTicket: OrderTicket = {
 
 describe("CI test for closing multiple orders", () => {
   it("Test - returnCloseOrderChunks(), expect to divide into 3", async () => {
-    const closePositionsIntoChunks = ci.returnCloseOrderChunks(
-      orderTicket,
-      positions,
-      20000
-    );
+    const closePositionsIntoChunks = ci.returnCloseOrderChunks(orderTicket, positions, 20000);
     expect(closePositionsIntoChunks.length).toEqual(3);
     expect(closePositionsIntoChunks).toEqual(positionsChunks);
   });
 
   it("Test - returnCloseOrderChunks(), expect to divide into 1", async () => {
-    const closePositionsIntoChunks = ci.returnCloseOrderChunks(
-      orderTicket,
-      positions,
-      100000
-    );
+    const closePositionsIntoChunks = ci.returnCloseOrderChunks(orderTicket, positions, 100000);
     expect(closePositionsIntoChunks.length).toEqual(1);
   });
 
   it("Test - returnCloseOrderChunks(), expect to divide into 6", async () => {
-    const closePositionsIntoChunks = ci.returnCloseOrderChunks(
-      orderTicket,
-      positions,
-      10000
-    );
+    const closePositionsIntoChunks = ci.returnCloseOrderChunks(orderTicket, positions, 10000);
     expect(closePositionsIntoChunks.length).toEqual(6);
   });
 

@@ -49,17 +49,17 @@ const expectedOpenLongResponse: OrderTicket = {
   TradingAccountId: 123456,
   IfDone: [],
   Close: null,
-  Reference: 'GCAPI',
+  Reference: "GCAPI",
   AllocationProfileId: null,
   OrderReference: null,
   Source: null,
-  PriceTolerance: 1000
+  PriceTolerance: 1000,
 };
 
 describe("CI test for order ticket", () => {
   it("Valid transformation on Order Ticket works", async () => {
     // CI gets prices for the order ticket so we need to mock it (const priceData = await this.getLatestPriceData(order))
-    let spy = jest.spyOn(ci, 'getLatestPriceData').mockImplementation(() => Promise.resolve({bid: 0.652, offer: 0.653}));
+    let spy = jest.spyOn(ci, "getLatestPriceData").mockImplementation(() => Promise.resolve({ bid: 0.652, offer: 0.653 }));
     let actualResponse = await ci.returnOrderTicket(orderEvent, 20);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(actualResponse).toEqual(expectedOpenLongResponse);

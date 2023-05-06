@@ -132,14 +132,23 @@ export default class CI extends Broker {
     this.ciPassword = ciCreds.password;
     this.ciUrl = ciCreds.url; // https://ciapi.cityindex.com/TradingAPI
     this.tradingAccountId = ciCreds.tradingAccountId;
-    this.headers = { Username: ciCreds.identifier, "Content-type": "application/json" };
+    this.headers = {
+      Username: ciCreds.identifier,
+      "Content-type": "application/json",
+    };
     this.confirmsArray = [];
     // this.lsClient = new ls.LightstreamerClient("https://push.cityindex.com", "STREAMINGALL");
   }
 
   public async connect(): Promise<void> {
     console.log("Attempting to connect to CI...");
-    let body = { UserName: this.ciIdentifier, Password: this.ciPassword, AppVersion: "1", AppComments: "", AppKey: this.ciApiKey };
+    let body = {
+      UserName: this.ciIdentifier,
+      Password: this.ciPassword,
+      AppVersion: "1",
+      AppComments: "",
+      AppKey: this.ciApiKey,
+    };
     try {
       let { data } = await this.axios.post(`${this.ciUrl}/session`, body, {
         headers: this.headers,
@@ -200,7 +209,9 @@ export default class CI extends Broker {
 
   private async marketSearch(): Promise<void> {
     try {
-      const { data } = await this.axios.get(`${this.ciUrl}/market/search?SearchByMarketName=TRUE&Query=USD%2FJPY&MaxResults=10`, { headers: this.headers });
+      const { data } = await this.axios.get(`${this.ciUrl}/market/search?SearchByMarketName=TRUE&Query=USD%2FJPY&MaxResults=10`, {
+        headers: this.headers,
+      });
       console.log(`Market Search results = ${JSON.stringify(data)}`);
     } catch (error) {
       throw new Error(`Cannot complete market search - ${JSON.stringify(error)}`);
@@ -363,7 +374,8 @@ export default class CI extends Broker {
   public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
     let orderTicket = await this.returnOrderTicket(order, 1);
     const closePositionsIntoChunks = this.returnCloseOrderChunks(orderTicket, positions, 5000000);
-    const promises = this.returnCloseOrderChunksAPIOrderRequests(orderTicket, closePositionsIntoChunks, order);
+    const orderTicketChunks = this.returnOrderTicketChunks(orderTicket, closePositionsIntoChunks);
+    const promises = this.returnCloseOrderChunksAPIOrderRequests(orderTicketChunks, order);
     return await Promise.all(promises);
   }
 
@@ -371,22 +383,30 @@ export default class CI extends Broker {
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     // We have an array of positions, we want to split this array by Quantity/Blobsize
-    const totalQuantity = positions.map(position => position.position.contractSize).reduce((a, b) => a + b);
+    const totalQuantity = positions.map((position) => position.position.contractSize).reduce((a, b) => a + b);
     const chunkSize = Math.ceil(totalQuantity / CIOrderSizeLimit);
     const positionsIntoChunks = this.chunkIntoN(positions, chunkSize);
     console.info(`Our total position size is ${totalQuantity}, and we will divide into ${chunkSize} chunks`);
     return positionsIntoChunks;
   }
 
-  public returnCloseOrderChunksAPIOrderRequests(orderTicket: OrderTicket, positionsIntoChunks: Array<Array<Positions>>, order: OrderEvent): Promise<string>[] {
+  public returnOrderTicketChunks(orderTicket: OrderTicket, positionsChunks: Positions[][]): OrderTicket[] {
+    let orderTicketCunks: OrderTicket[] = [];
+    for (let i = 0; i < positionsChunks.length; i++) {
+      let posiitonChunk = positionsChunks[i];
+      // List all open contracts we want to close in this chunk
+      orderTicket.Close = posiitonChunk.map((position) => position.position.dealId);
+      // Override quantity with the TOTAL position size of this chunk
+      orderTicket.Quantity = posiitonChunk.map((position) => position.position.contractSize).reduce((a, b) => a + b);
+      // Add new orderTicket to array of orderTickets
+      orderTicketCunks.push(orderTicket);
+    }
+    return orderTicketCunks;
+  }
+
+  public returnCloseOrderChunksAPIOrderRequests(orderTickets: OrderTicket[], order: OrderEvent): Promise<string>[] {
     const promises = [];
-    for (let i = 0; i < positionsIntoChunks.length; i++) {
-      let posiitonChunk = positionsIntoChunks[i];
-      // List all open contracts we want to close
-      orderTicket.Close = posiitonChunk.map(position => position.position.dealId);
-      // Override quantity with the TOTAL position size
-      orderTicket.Quantity = posiitonChunk.map(position => position.position.contractSize).reduce((a, b) => a + b);
-      // Promise All orders 
+    for (let orderTicket of orderTickets) {
       promises.push(this.closeOrderRequest(orderTicket, order));
     }
     return promises;
@@ -394,9 +414,7 @@ export default class CI extends Broker {
 
   private chunkIntoN(array: Array<Positions>, chunks: number): Array<Array<Positions>> {
     const size = Math.ceil(array.length / chunks);
-    return Array.from({ length: chunks }, (v, i) =>
-      array.slice(i * size, i * size + size)
-    );
+    return Array.from({ length: chunks }, (v, i) => array.slice(i * size, i * size + size));
   }
 
   private async closeOrderRequest(orderTicket: OrderTicket, order: OrderEvent): Promise<string> {
