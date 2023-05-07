@@ -60,18 +60,18 @@ const orderTicket: OrderTicket = {
 
 describe("CI test for closing multiple orders", () => {
   it("Test - returnCloseOrderChunks(), expect to divide into 3", async () => {
-    const closePositionsIntoChunks = ci.returnCloseOrderChunks(orderTicket, positions, 20000);
+    const closePositionsIntoChunks = ci.returnCloseOrderChunks(positions, 20000);
     expect(closePositionsIntoChunks.length).toEqual(3);
     expect(closePositionsIntoChunks).toEqual(positionsChunks);
   });
 
   it("Test - returnCloseOrderChunks(), expect to divide into 1", async () => {
-    const closePositionsIntoChunks = ci.returnCloseOrderChunks(orderTicket, positions, 100000);
+    const closePositionsIntoChunks = ci.returnCloseOrderChunks(positions, 100000);
     expect(closePositionsIntoChunks.length).toEqual(1);
   });
 
   it("Test - returnCloseOrderChunks(), expect to divide into 6", async () => {
-    const closePositionsIntoChunks = ci.returnCloseOrderChunks(orderTicket, positions, 10000);
+    const closePositionsIntoChunks = ci.returnCloseOrderChunks(positions, 10000);
     expect(closePositionsIntoChunks.length).toEqual(6);
   });
 

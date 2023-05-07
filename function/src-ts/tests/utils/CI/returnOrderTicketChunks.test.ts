@@ -48,12 +48,12 @@ const orderTicket: OrderTicket = {
   PriceTolerance: 1000,
 };
 
-const orderTicketsExpected: OrderTicket[] = [
+const closeOrderTicketsExpected: OrderTicket[] = [
   {
     MarketId: ciEpics.AUDUSD,
     Currency: "USD",
     AutoRollover: false,
-    Direction: "buy",
+    Direction: "sell",
     Quantity: 20000,
     QuoteId: null,
     PositionMethodId: 2,
@@ -73,7 +73,7 @@ const orderTicketsExpected: OrderTicket[] = [
     MarketId: ciEpics.AUDUSD,
     Currency: "USD",
     AutoRollover: false,
-    Direction: "buy",
+    Direction: "sell",
     Quantity: 20000,
     QuoteId: null,
     PositionMethodId: 2,
@@ -93,7 +93,7 @@ const orderTicketsExpected: OrderTicket[] = [
     MarketId: ciEpics.AUDUSD,
     Currency: "USD",
     AutoRollover: false,
-    Direction: "buy",
+    Direction: "sell",
     Quantity: 20000,
     QuoteId: null,
     PositionMethodId: 2,
@@ -115,6 +115,6 @@ describe("CI - returnOrderTicketChunks()", () => {
   it("Test - are orderTickets being created?", async () => {
     const orderTickets = ci.returnOrderTicketChunks(orderTicket, positionsChunks);
     expect(orderTickets.length).toEqual(3);
-    expect(orderTickets).toEqual(orderTicketsExpected);
+    expect(orderTickets).toEqual(closeOrderTicketsExpected);
   });
 });

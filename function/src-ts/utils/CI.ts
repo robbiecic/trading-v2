@@ -373,15 +373,13 @@ export default class CI extends Broker {
 
   public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
     let orderTicket = await this.returnOrderTicket(order, 1);
-    const closePositionsIntoChunks = this.returnCloseOrderChunks(orderTicket, positions, 5000000);
+    const closePositionsIntoChunks = this.returnCloseOrderChunks(positions, 5000000);
     const orderTicketChunks = this.returnOrderTicketChunks(orderTicket, closePositionsIntoChunks);
     const promises = this.returnCloseOrderChunksAPIOrderRequests(orderTicketChunks, order);
     return await Promise.all(promises);
   }
 
-  public returnCloseOrderChunks(orderTicket: OrderTicket, positions: Array<Positions>, CIOrderSizeLimit: number): Array<Array<Positions>> {
-    // Inverse the direction to close the trade
-    orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
+  public returnCloseOrderChunks(positions: Array<Positions>, CIOrderSizeLimit: number): Array<Array<Positions>> {
     // We have an array of positions, we want to split this array by Quantity/Blobsize
     const totalQuantity = positions.map((position) => position.position.contractSize).reduce((a, b) => a + b);
     const chunkSize = Math.ceil(totalQuantity / CIOrderSizeLimit);
@@ -391,6 +389,8 @@ export default class CI extends Broker {
   }
 
   public returnOrderTicketChunks(orderTicket: OrderTicket, positionsChunks: Positions[][]): OrderTicket[] {
+    // Inverse the direction to close the trade
+    orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     let orderTicketCunks: OrderTicket[] = [];
     for (let i = 0; i < positionsChunks.length; i++) {
       let posiitonChunk = positionsChunks[i];
