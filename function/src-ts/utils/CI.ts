@@ -392,14 +392,14 @@ export default class CI extends Broker {
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
     let orderTicketCunks: OrderTicket[] = [];
-    for (let i = 0; i < positionsChunks.length; i++) {
-      let posiitonChunk = positionsChunks[i];
+    for (let position of positionsChunks) {
+      let orderTicketTemp = orderTicket;
       // List all open contracts we want to close in this chunk
-      orderTicket.Close = posiitonChunk.map((position) => position.position.dealId);
+      orderTicketTemp.Close = position.map((position) => position.position.dealId);
       // Override quantity with the TOTAL position size of this chunk
-      orderTicket.Quantity = posiitonChunk.map((position) => position.position.contractSize).reduce((a, b) => a + b);
+      orderTicketTemp.Quantity = position.map((position) => position.position.contractSize).reduce((a, b) => a + b);
       // Add new orderTicket to array of orderTickets
-      orderTicketCunks.push(orderTicket);
+      orderTicketCunks.push({ ...orderTicketTemp });
     }
     return orderTicketCunks;
   }
