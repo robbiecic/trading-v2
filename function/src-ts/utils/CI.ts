@@ -244,7 +244,7 @@ export default class CI extends Broker {
     }
   }
 
-  private appendOrderToConfirmsArray(order: OrderEvent, orderResponse: ApiOrderResponseDTO): void {
+  public appendOrderToConfirmsArray(order: OrderEvent, orderResponse: ApiOrderResponseDTO): void {
     try {
       console.log(`Attempting to push into confirms array ${JSON.stringify(orderResponse)}`);
       const confirms: Confirms = {
@@ -417,12 +417,18 @@ export default class CI extends Broker {
     return Array.from({ length: chunks }, (v, i) => array.slice(i * size, i * size + size));
   }
 
-  private async closeOrderRequest(orderTicket: OrderTicket, order: OrderEvent): Promise<string> {
+  public async closeOrderRequest(orderTicket: OrderTicket, order: OrderEvent): Promise<string> {
     let getCloseResponse: AxiosResponse;
     console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);
     try {
       getCloseResponse = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, { headers: this.headers });
-      console.info(`CI API responce to Close order - ${JSON.stringify(getCloseResponse.data)}`);
+      console.info(`CI API response to Close order - ${JSON.stringify(getCloseResponse.data)}`);
+      // If a quote is returned we want to place a new order with the quote id
+      if (getCloseResponse.data.Quote != null) {
+        console.info(`Order was not accepted, we were returned quote with id ${getCloseResponse.data.Quote.QuoteId}`);
+        orderTicket.QuoteId = getCloseResponse.data.Quote.QuoteId;
+        getCloseResponse = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, { headers: this.headers });
+      }
       this.appendOrderToConfirmsArray(order, getCloseResponse.data.Orders[0]);
       return getCloseResponse.data.OrderId;
     } catch (e) {
