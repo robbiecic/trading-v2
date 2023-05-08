@@ -158,8 +158,8 @@ export default class Broker {
     return "orderid";
   }
 
-  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string> {
-    return "orderid";
+  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
+    return ["orderid"];
   }
 
   public async getOpenPositions(pair: string): Promise<Array<Positions>> {

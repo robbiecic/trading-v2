@@ -64,16 +64,19 @@ async function closeCIPositionsInBulk(broker: Broker, order: OrderEvent, reposit
       && order.direction == (position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT));
 
   if (positionsForOrderPairAndDirection.length > 0) {
-    let dealReference = await broker.closeMultiplePositions(positionsForOrderPairAndDirection, order);
-    console.log(`Closed position with deal reference - ${dealReference}`);
-    //Get deal reference details
-    let dealDetails = await broker.getDealDetails(dealReference);
-    console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
-    //Map details to Deal Type, IG will return it's own dataset
-    let finalOrderDetails = mapConfirmToDeal(dealDetails, order);
-    console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
-    //Log into DB
-    await saveData(finalOrderDetails, repository);
+    let dealReferences = await broker.closeMultiplePositions(positionsForOrderPairAndDirection, order);
+    for (let dealReference of dealReferences)
+    {
+      console.log(`Closed position with deal reference - ${dealReference}`);
+      //Get deal reference details
+      let dealDetails = await broker.getDealDetails(dealReference);
+      console.log(`Deal details are - ${JSON.stringify(dealDetails)}`);
+      //Map details to Deal Type, IG will return it's own dataset
+      let finalOrderDetails = mapConfirmToDeal(dealDetails, order);
+      console.log(`Attempting to insert into DB: ${JSON.stringify(finalOrderDetails)}`);
+      //Log into DB
+      await saveData(finalOrderDetails, repository);
+    }
   } else {
     console.log("Close order did not match any open positions.");
   }

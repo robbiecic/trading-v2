@@ -37,7 +37,7 @@ interface ApiOrderResponseDTO {
 }
 
 interface ApiTradeHistoryDTO {
-  OrderId: string;
+  OrderId: number;
   OpeningOrderIds: Array<number>; // The orders that are being closed / part closed by this order.
   MarketId: number;
   MarketName: string;
@@ -57,15 +57,15 @@ interface ApiTradeHistoryDTO {
   Source: string;
   IsCloseBy: boolean;
   Liquidation: boolean;
-  FixedInitialMargin: number;
+  FixedInitalMargin: number;
 }
 
-interface ListOpenPositionsResponseDTO {
+export interface ListOpenPositionsResponseDTO {
   OpenPositions: Array<ApiOpenPositionDTO>;
 }
 
-interface ApiOpenPositionDTO {
-  OrderId: string; // The order's unique identifier.
+export interface ApiOpenPositionDTO {
+  OrderId: number; // The order's unique identifier.
   AutoRollover: Boolean; // Flag to indicate whether the trade will automatically roll into the next market interval when the current market interval expires. Only applies to markets where the underlying is a futures contract.
   MarketId: Number; // The market's unique identifier.
   MarketName: string; // The market's name.
@@ -74,26 +74,27 @@ interface ApiOpenPositionDTO {
   Price?: number; // The price / rate that the trade was opened at.
   TradingAccountId: Number; // The ID of the trading account associated with the trade/order request.
   Currency: string; // Currency to place order in.
-  Status: string; // The order status. The table of lookup codes can be found at Lookup Values.
+  Status: number; // The order status. The table of lookup codes can be found at Lookup Values.
   StopOrder?: any; // The stop order attached to this order.
   LimitOrder?: any; // The limit order attached to this order.
   LastChangedDateTimeUTC: string; // Represents the date and time when the trade/order was last edited in UNIX time format. Note: does not include things such as the current market price.
   CreatedDateTimeUTC: string; // The date and time that the order was created in UNIX time format. This can be the time an active order was created, which then become an open position after a fill. Alternatively, this can be the time a market order was executed.
-  ExecutedDateTimeUTC: Date; // The date time that the order executed initially in UNIX time format. This does not include any partial closures. This can be the time an active order was created, which then become an open position after a fill. Alternatively, this can be the time a market order was executed.
+  ExecutedDateTimeUTC: string; // The date time that the order executed initially in UNIX time format. This does not include any partial closures. This can be the time an active order was created, which then become an open position after a fill. Alternatively, this can be the time a market order was executed.
   TradeReference: string; // An alternative trade reference.
   ManagedTrades?: any; // The list of constituent trades for Trading Advisor managed positions (if applicable).
   AllocationProfileId?: Number; // The identifier of the allocation profile that was used to create the open position, where applicable. (Used by Trade Advisor accounts).
   AllocationProfileName?: string; // The name of the allocation profile that was used to create the open position, where applicable. (Used by Trade Advisor accounts).
   AssociatedOrders?: any; // The associated orders linked to this open position. An associated order is linked to a net position rather than to specific individual trades.
-  FixedInitialMargin?: Number; // The fixed amount of trading resources used to place the trade.
+  FixedInitalMargin?: Number; // The fixed amount of trading resources used to place the trade.
+  PositionMethodId?: Number;
 }
 
-interface OrderTicket {
+export interface OrderTicket {
   MarketId: ciEpics; // The unique identifier for a market.
   Currency: string; // Currency to place order in.
   AutoRollover: false; // Flag to indicate whether the trade will automatically roll into the next market interval when the current market interval expires. Only applies to markets where the underlying is a futures contract.
   Direction: string; //Buy or Sell
-  Quantity: Number; // Size of the order/trade.
+  Quantity: number; // Size of the order/trade.
   QuoteId?: Number; // The unique quote identifier.
   PositionMethodId?: 1 | 2; // Indicates the position of the trade. 1 == LongOrShortOnly, 2 == LongAndShort.
   BidPrice: Number; // Market prices are quoted as a pair (buy/sell or bid/offer), the BidPrice is the lower value of the pair.
@@ -131,14 +132,23 @@ export default class CI extends Broker {
     this.ciPassword = ciCreds.password;
     this.ciUrl = ciCreds.url; // https://ciapi.cityindex.com/TradingAPI
     this.tradingAccountId = ciCreds.tradingAccountId;
-    this.headers = { Username: ciCreds.identifier, "Content-type": "application/json" };
+    this.headers = {
+      Username: ciCreds.identifier,
+      "Content-type": "application/json",
+    };
     this.confirmsArray = [];
     // this.lsClient = new ls.LightstreamerClient("https://push.cityindex.com", "STREAMINGALL");
   }
 
   public async connect(): Promise<void> {
     console.log("Attempting to connect to CI...");
-    let body = { UserName: this.ciIdentifier, Password: this.ciPassword, AppVersion: "1", AppComments: "", AppKey: this.ciApiKey };
+    let body = {
+      UserName: this.ciIdentifier,
+      Password: this.ciPassword,
+      AppVersion: "1",
+      AppComments: "",
+      AppKey: this.ciApiKey,
+    };
     try {
       let { data } = await this.axios.post(`${this.ciUrl}/session`, body, {
         headers: this.headers,
@@ -199,7 +209,9 @@ export default class CI extends Broker {
 
   private async marketSearch(): Promise<void> {
     try {
-      const { data } = await this.axios.get(`${this.ciUrl}/market/search?SearchByMarketName=TRUE&Query=USD%2FJPY&MaxResults=10`, { headers: this.headers });
+      const { data } = await this.axios.get(`${this.ciUrl}/market/search?SearchByMarketName=TRUE&Query=USD%2FJPY&MaxResults=10`, {
+        headers: this.headers,
+      });
       console.log(`Market Search results = ${JSON.stringify(data)}`);
     } catch (error) {
       throw new Error(`Cannot complete market search - ${JSON.stringify(error)}`);
@@ -307,7 +319,7 @@ export default class CI extends Broker {
               contractSize: order.Quantity,
               createdDate: order.CreatedDateTimeUTC,
               createdDateUTC: order.CreatedDateTimeUTC,
-              dealId: order.OrderId,
+              dealId: String(order.OrderId),
               size: order.Quantity,
               direction: order.Direction == "buy" ? "BUY" : "SELL",
               limitLevel: order.Price,
@@ -359,15 +371,54 @@ export default class CI extends Broker {
     }
   }
 
-  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string> {
-    let getCloseResponse: AxiosResponse;
-    let orderTicket = await this.returnOrderTicket(order, 1); // The 1 is redundant as the quantity is changed below
-    // List or open contract we want to close
-    orderTicket.Close = positions.map(position => position.position.dealId);
-    // Override quantity with the total position size
-    orderTicket.Quantity = positions.map(position => position.position.contractSize).reduce((a, b) => a+b);
+  public async closeMultiplePositions(positions: Array<Positions>, order: OrderEvent): Promise<string[]> {
+    let orderTicket = await this.returnOrderTicket(order, 1);
+    const closePositionsIntoChunks = this.returnCloseOrderChunks(positions, 5000000);
+    const orderTicketChunks = this.returnOrderTicketChunks(orderTicket, closePositionsIntoChunks);
+    const promises = this.returnCloseOrderChunksAPIOrderRequests(orderTicketChunks, order);
+    return await Promise.all(promises);
+  }
+
+  public returnCloseOrderChunks(positions: Array<Positions>, CIOrderSizeLimit: number): Array<Array<Positions>> {
+    // We have an array of positions, we want to split this array by Quantity/Blobsize
+    const totalQuantity = positions.map((position) => position.position.contractSize).reduce((a, b) => a + b);
+    const chunkSize = Math.ceil(totalQuantity / CIOrderSizeLimit);
+    const positionsIntoChunks = this.chunkIntoN(positions, chunkSize);
+    console.info(`Our total position size is ${totalQuantity}, and we will divide into ${chunkSize} chunks`);
+    return positionsIntoChunks;
+  }
+
+  public returnOrderTicketChunks(orderTicket: OrderTicket, positionsChunks: Positions[][]): OrderTicket[] {
     // Inverse the direction to close the trade
     orderTicket.Direction = orderTicket.Direction == "buy" ? "sell" : "buy";
+    let orderTicketCunks: OrderTicket[] = [];
+    for (let position of positionsChunks) {
+      let orderTicketTemp = orderTicket;
+      // List all open contracts we want to close in this chunk
+      orderTicketTemp.Close = position.map((position) => position.position.dealId);
+      // Override quantity with the TOTAL position size of this chunk
+      orderTicketTemp.Quantity = position.map((position) => position.position.contractSize).reduce((a, b) => a + b);
+      // Add new orderTicket to array of orderTickets
+      orderTicketCunks.push({ ...orderTicketTemp });
+    }
+    return orderTicketCunks;
+  }
+
+  public returnCloseOrderChunksAPIOrderRequests(orderTickets: OrderTicket[], order: OrderEvent): Promise<string>[] {
+    const promises = [];
+    for (let orderTicket of orderTickets) {
+      promises.push(this.closeOrderRequest(orderTicket, order));
+    }
+    return promises;
+  }
+
+  private chunkIntoN(array: Array<Positions>, chunks: number): Array<Array<Positions>> {
+    const size = Math.ceil(array.length / chunks);
+    return Array.from({ length: chunks }, (v, i) => array.slice(i * size, i * size + size));
+  }
+
+  private async closeOrderRequest(orderTicket: OrderTicket, order: OrderEvent): Promise<string> {
+    let getCloseResponse: AxiosResponse;
     console.log(`Closing trading with body - ${JSON.stringify(orderTicket)}`);
     try {
       getCloseResponse = await this.axios.post(`${this.ciUrl}/order/newtradeorder`, orderTicket, { headers: this.headers });

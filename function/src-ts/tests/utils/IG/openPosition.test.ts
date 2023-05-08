@@ -3,6 +3,7 @@ import { mocked } from "ts-jest/utils";
 import IG from "../../../utils/IG";
 import { mockResponse } from "./factories";
 import { OrderEvent, ActionTypes, DirectionTypes } from "../../../entity/OrderEvent";
+import { positions } from "./api-responses/positions";
 
 //Set up of axios mock
 const mockedAxios = mocked(axios, true);
@@ -11,10 +12,15 @@ jest.mock("axios", () => ({
     baseURL: "test",
     raxConfig: {},
   },
+  interceptors: {
+    request: { use: jest.fn(), eject: jest.fn() },
+    response: { use: jest.fn(), eject: jest.fn() },
+  },
   create: () => axios,
   get: jest.fn(() => Promise),
   post: jest.fn(() => Promise),
 }));
+
 jest.mock("retry-axios", () => ({
   attach: () => 12345,
 }));
@@ -34,9 +40,10 @@ describe("IG open positions test suite", () => {
   afterEach(jest.clearAllMocks);
 
   it("Should open position successfully", async () => {
-    let expectedResponse = { dealReference: "123456" };
-    //Prices call
-    mockedAxios.post.mockResolvedValueOnce(mockResponse.build({ data: expectedResponse }));
+    // Mock the first call to get open positions
+    mockedAxios.get.mockResolvedValueOnce(mockResponse.build({data: positions}));
+    // Mock order open call
+    mockedAxios.post.mockResolvedValueOnce(mockResponse.build({ data: { dealReference: "123456" } }));
     const actualResponse = await ig.placeOrder(orderEvent);
     expect(actualResponse).toEqual("123456");
   });
