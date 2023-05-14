@@ -64,7 +64,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
-          UNITS_AUDUSD: 22
+          UNITS_AUDUSD: 20
           UNITS_EURUSD: 2
           UNITS_USDJPY: 2
           BROKER: IG
@@ -156,7 +156,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: CI_RODI_PROD
-          UNITS_AUDUSD: 25
+          UNITS_AUDUSD: 20
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: CI
