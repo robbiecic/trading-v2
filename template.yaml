@@ -64,7 +64,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: IG_RODI_LIVE
-          UNITS_AUDUSD: 20
+          UNITS_AUDUSD: 11
           UNITS_EURUSD: 2
           UNITS_USDJPY: 2
           BROKER: IG
@@ -87,7 +87,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: IG_REECE_LIVE
-          UNITS_AUDUSD: 4
+          UNITS_AUDUSD: 3
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
@@ -110,7 +110,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: IG_ROB_LIVE
-          UNITS_AUDUSD: 4
+          UNITS_AUDUSD: 3
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
@@ -156,7 +156,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: CI_RODI_PROD
-          UNITS_AUDUSD: 20
+          UNITS_AUDUSD: 14
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: CI
@@ -179,7 +179,7 @@ Resources:
         Variables:
           DB_SCHEMA: main
           API_ACCOUNT_SECRET_NAME: IG_DANIEL_LIVE
-          UNITS_AUDUSD: 2.5
+          UNITS_AUDUSD: 2
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: IG
