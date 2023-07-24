@@ -8,11 +8,22 @@ export async function doOrder(order: OrderEvent, broker: Broker): Promise<boolea
   await broker.connect(); //Will set oAuth token valid for ~60 seconds which is long enough
   const connection: Connection = getConnection();
   const repository: Repository<any> = connection.getRepository(tradingHistory);
+  const positions: Positions[] = await getPositions(broker, order.pair);
+  console.info(`There are currently ${positions.length} positions opened in total.`);
+  const maxPositions = 70;
+
+  // We don't want to open more than 70 trades, so will close them all first before we open any more
   if (order.actionType === ActionTypes.Open) {
     await openPosition(broker, order, repository);
+    if (positions.length > maxPositions) {
+      // Manipulate the Open order to pretend it's a close order
+      order.actionType = ActionTypes.Close;
+      console.info(`We have more than ${maxPositions} positions opened, so closing positions.`);
+      await closePositions(broker, order, repository, positions);
+      return true;
+    }
     return true;
   } else if (order.actionType === ActionTypes.Close) {
-    const positions = await getPositions(broker, order.pair);
     await closePositions(broker, order, repository, positions);
     return true;
   } else {
@@ -46,8 +57,7 @@ async function getPositions(broker: Broker, pair: string): Promise<Array<Positio
 export async function closePositions(broker: Broker, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
   if (broker.name == "CI") {
     await closeCIPositionsInBulk(broker, order, repository, positions);
-  }
-  else {
+  } else {
     const promises = [];
     for (let position of positions) {
       promises.push(closePosition(broker, order, repository, position));
@@ -60,13 +70,12 @@ export async function closePositions(broker: Broker, order: OrderEvent, reposito
 async function closeCIPositionsInBulk(broker: Broker, order: OrderEvent, repository: Repository<any>, positions: Array<Positions>) {
   // Filter only positions that we want to close
   let positionsForOrderPairAndDirection: Array<Positions> = positions.filter(
-    (position) => broker.getPairFromEpic(position.market.epic) == order.pair
-      && order.direction == (position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT));
+    (position) => broker.getPairFromEpic(position.market.epic) == order.pair && order.direction == (position.position.direction == "BUY" ? DirectionTypes.LONG : DirectionTypes.SHORT)
+  );
 
   if (positionsForOrderPairAndDirection.length > 0) {
     let dealReferences = await broker.closeMultiplePositions(positionsForOrderPairAndDirection, order);
-    for (let dealReference of dealReferences)
-    {
+    for (let dealReference of dealReferences) {
       console.log(`Closed position with deal reference - ${dealReference}`);
       //Get deal reference details
       let dealDetails = await broker.getDealDetails(dealReference);
