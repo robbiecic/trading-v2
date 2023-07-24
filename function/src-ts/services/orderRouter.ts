@@ -9,6 +9,7 @@ export async function doOrder(order: OrderEvent, broker: Broker): Promise<boolea
   const connection: Connection = getConnection();
   const repository: Repository<any> = connection.getRepository(tradingHistory);
   const positions: Positions[] = await getPositions(broker, order.pair);
+  console.info(`There are currently ${positions.length} positions opened in total.`);
   const maxPositions = 2;
 
   // We don't want to open more than 70 trades, so will close them all first before we open any more
