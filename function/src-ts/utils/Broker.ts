@@ -120,7 +120,7 @@ export default class Broker {
   }
 
   protected returnSizeAmount(pair: string, numberOpenPositions: number): number {
-    let multipler = numberOpenPositions > 45 ? 2 : 1;
+    let multipler = numberOpenPositions > 35 ? 2 : 1;
 
     switch (pair) {
       case "AUD/USD":
