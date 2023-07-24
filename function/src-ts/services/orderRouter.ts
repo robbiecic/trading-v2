@@ -9,17 +9,20 @@ export async function doOrder(order: OrderEvent, broker: Broker): Promise<boolea
   const connection: Connection = getConnection();
   const repository: Repository<any> = connection.getRepository(tradingHistory);
   const positions: Positions[] = await getPositions(broker, order.pair);
+  const maxPositions = 2;
 
   // We don't want to open more than 70 trades, so will close them all first before we open any more
-  if (order.actionType === ActionTypes.Open && positions.length <= 70) {
+  if (order.actionType === ActionTypes.Open) {
     await openPosition(broker, order, repository);
+    if (positions.length > maxPositions) {
+      // Manipulate the Open order to pretend it's a close order
+      order.actionType = ActionTypes.Close;
+      console.info(`We have more than ${maxPositions} positions opened, so closing positions.`);
+      await closePositions(broker, order, repository, positions);
+      return true;
+    }
     return true;
   } else if (order.actionType === ActionTypes.Close) {
-    await closePositions(broker, order, repository, positions);
-    return true;
-  } else if (positions.length > 70) {
-    // Manipulate the Open order to pretend it's a close order
-    order.actionType = ActionTypes.Close;
     await closePositions(broker, order, repository, positions);
     return true;
   } else {
