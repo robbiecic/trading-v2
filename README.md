@@ -1,6 +1,6 @@
 # market-data
 
-An instance of this application will be spun up in accordance to the environment variables provided below. For example, if you which to setup an IG trading service, then specify the `BROKER` as `IG`, connect to the corresponding secret in AWS secretsManager and then set the values you wish to trade
+This application will be spun up in accordance to the environment variables provided below. For example, if you which to setup an IG trading service, then specify the `BROKER` as `IG`, connect to the corresponding secret in AWS secretsManager and then set the values you wish to trade
 
 ## Environment variables
 
