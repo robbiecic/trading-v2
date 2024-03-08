@@ -4,7 +4,7 @@ Description: Trading against IG
 
 Globals:
   Function:
-    Timeout: 25
+    Timeout: 45
 
 Resources:
   ExecuteTrades:
@@ -68,7 +68,7 @@ Resources:
           UNITS_EURUSD: 2
           UNITS_USDJPY: 2
           BROKER: IG
-          AUDUSD_ENABLED: TRUE
+          AUDUSD_ENABLED: FALSE
           EURUSD_ENABLED: FALSE
           USDJPY_ENABLED: FALSE
       Policies:
@@ -91,7 +91,7 @@ Resources:
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
-          AUDUSD_ENABLED: TRUE
+          AUDUSD_ENABLED: FALSE
           EURUSD_ENABLED: FALSE
           USDJPY_ENABLED: FALSE
       Policies:
@@ -114,7 +114,7 @@ Resources:
           UNITS_EURUSD: 0.5
           UNITS_USDJPY: 0.5
           BROKER: IG
-          AUDUSD_ENABLED: TRUE
+          AUDUSD_ENABLED: FALSE
           EURUSD_ENABLED: FALSE
           USDJPY_ENABLED: FALSE
       Policies:
@@ -137,7 +137,7 @@ Resources:
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: CI
-          AUDUSD_ENABLED: TRUE
+          AUDUSD_ENABLED: FALSE
           EURUSD_ENABLED: FALSE
           USDJPY_ENABLED: FALSE
       Policies:
@@ -160,7 +160,7 @@ Resources:
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: CI
-          AUDUSD_ENABLED: TRUE
+          AUDUSD_ENABLED: FALSE
           EURUSD_ENABLED: FALSE
           USDJPY_ENABLED: FALSE
       Policies:
@@ -183,7 +183,7 @@ Resources:
           UNITS_EURUSD: 1
           UNITS_USDJPY: 1
           BROKER: IG
-          AUDUSD_ENABLED: TRUE
+          AUDUSD_ENABLED: FALSE
           EURUSD_ENABLED: FALSE
           USDJPY_ENABLED: FALSE
       Policies:
